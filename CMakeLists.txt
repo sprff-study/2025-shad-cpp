@@ -70,6 +70,7 @@ add_if_exists(partition)
 add_if_exists(fold)
 add_if_exists(functors)
 add_if_exists(itertools)
+add_if_exists(cipher)
 
 find_package(PNG)
 if (${PNG_FOUND})
