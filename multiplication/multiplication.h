@@ -3,5 +3,5 @@
 #include <stdexcept>
 
 int64_t Multiply(int a, int b) {
-    throw std::runtime_error{"Not implemented"};
+    return int64_t(a) * int64_t(b);
 }
