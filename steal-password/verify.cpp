@@ -1,10 +1,9 @@
 #include "verify.h"
 #include <cstdlib>
-#include <ctime>
 
 namespace {
-const int kSecureCode = (std::srand(std::time({})), std::rand());
-const int kPassword = std::rand();
+const int kSecureCode = 12345;
+const int kPassword = 6789;
 }  // namespace
 
 size_t RateLimitCheck();
