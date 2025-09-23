@@ -13,4 +13,3 @@ int BinPow(int a, int64_t b, int c) {
     int64_t z = static_cast<int64_t>(BinPow(a, b - 1, c));
     return z * a % c;
 }
-
