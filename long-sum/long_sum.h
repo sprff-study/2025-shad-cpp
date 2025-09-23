@@ -4,7 +4,7 @@
 #include <stdexcept>
 
 std::string LongSum(const std::string& a, const std::string& b) {
-    std::string res = "";
+    std::string res;
     int n = std::max(a.size(), b.size());
     int over = 0;
     for (int i = 0; i <= n; ++i) {
@@ -24,7 +24,7 @@ std::string LongSum(const std::string& a, const std::string& b) {
         res.pop_back();
     }
 
-    for (int l = 0, r = res.size() - 1; l <r; l++, r++ ){
+    for (int l = 0, r = res.size() - 1; l < r; l++, r++) {
         std::swap(res[l], res[r]);
     }
 
