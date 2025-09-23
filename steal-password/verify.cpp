@@ -2,8 +2,8 @@
 #include <cstdlib>
 
 namespace {
-const int kSecureCode = 12345;
-const int kPassword = 6789;
+constexpr int kSecureCode = 12345;
+constexpr int kPassword = 6789;
 }  // namespace
 
 size_t RateLimitCheck();
