@@ -1,16 +1,13 @@
 #include "verify.h"
 #include <cstdlib>
+#include <ctime>
 
 namespace {
-constexpr int kPassword = PPASSWORD;
-constexpr int kSecureCode = PSECURECODE;
-
-size_t RateLimitCheck() {
-    static size_t wild_guess_limit = 3;
-    wild_guess_limit = wild_guess_limit ? --wild_guess_limit : 0uz;
-    return wild_guess_limit;
-}
+const int kSecureCode = (std::srand(std::time({})), std::rand());
+const int kPassword = std::rand();
 }  // namespace
+
+size_t RateLimitCheck();
 
 int GetPassword(int secure_code) {
     int password = kPassword;

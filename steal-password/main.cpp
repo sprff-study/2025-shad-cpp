@@ -1,6 +1,7 @@
-#include "steal.h"
 #include "verify.h"
 #include <iostream>
+
+int StealPassword();
 
 int main() {
     int password = StealPassword();
