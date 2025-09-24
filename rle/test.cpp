@@ -8,8 +8,9 @@ namespace {
 
 void Check(const std::string& a, const std::string& expected) {
     static int test = 0;
+    auto res = Rle(a);
     auto result = (Rle(a) == expected);
-    INFO("test " << ++test);
+    INFO("test " << ++test << " got " << res << " expected " << expected);
     CHECK(result);
 }
 
