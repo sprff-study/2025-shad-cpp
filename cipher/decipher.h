@@ -24,7 +24,7 @@ std::vector<std::string> Decipher(const std::string& s) {
         }
        
         res.push_back(dec(s, d, n/d));
-        res.push_back(dec(s, n/d, gd));
+        res.push_back(dec(s, n/d, d));
     }
     return res;
 }
