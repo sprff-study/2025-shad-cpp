@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-std::string dec(const std::string& s, size_t c, size_t d) {
+std::string Dec(const std::string& s, size_t c, size_t d) {
 
     std::string str;
     for (size_t i = 0; i < d; ++i) {
@@ -22,8 +22,8 @@ std::vector<std::string> Decipher(const std::string& s) {
             continue;
         }
 
-        res.push_back(dec(s, d, n / d));
-        res.push_back(dec(s, n / d, d));
+        res.push_back(Dec(s, d, n / d));
+        res.push_back(Dec(s, n / d, d));
     }
     return res;
 }
