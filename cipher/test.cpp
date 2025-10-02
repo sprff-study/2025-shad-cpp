@@ -15,7 +15,7 @@ void Check(const std::string& a, const std::string& expected) {
     auto view = std::views::join_with(results, '\n');
     auto s = std::ranges::to<std::string>(view);
 
-    INFO("test " << ++test);
+    INFO("test " << ++test << ' ' << a);
     INFO("result:\n" << s);
 
     CHECK(std::find(results.begin(), results.end(), expected) != results.end());
@@ -24,15 +24,15 @@ void Check(const std::string& a, const std::string& expected) {
 }  // namespace
 
 TEST_CASE("Basic") {
-    // Check("a", "a");
-    // Check("hloolelwrd", "helloworld");
-    // Check("hweolrllod", "helloworld");
-    // Check("tset", "test");
+    Check("a", "a");
+    Check("hloolelwrd", "helloworld");
+    Check("hweolrllod", "helloworld");
+    Check("tset", "test");
 }
 
 TEST_CASE("Punctuation") {
-    // Check("HloWrdel ol!", "Hello World!");
-    // Check("HlWleoodl r!", "Hello World!");
+    Check("HloWrdel ol!", "Hello World!");
+    Check("HlWleoodl r!", "Hello World!");
     Check("Hore llWdlo!", "Hello World!");
     Check("HWeolrllod !", "Hello World!");
 }

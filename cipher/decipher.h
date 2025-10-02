@@ -16,6 +16,7 @@ std::string Dec(const std::string& s, size_t c, size_t d) {
 
 std::vector<std::string> Decipher(const std::string& s) {
     std::vector<std::string> res;
+    res.push_back(s);
     size_t n = s.size();
     for (size_t d = 2; d * d <= n; ++d) {
         if (n % d != 0) {
