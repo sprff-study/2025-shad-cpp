@@ -1,9 +1,9 @@
 #include <numeric>
 #include <iostream>
 
-int Gcd(int a, int b) {
+unsigned Gcd(unsigned a, unsigned b) {
     while (a * b != 0) {
-        int rem = a % b;
+        unsigned rem = a % b;
         a = b;
         b = rem;
     }
