@@ -11,7 +11,7 @@ struct Triangle {
     Point a, b, c;
 };
 
-int Position(Point a, Point b, Point c) { // 1 - ac on ab's left, 0 - co, -1 on ab's rigt
+int Position(Point a, Point b, Point c) {  // 1 - ac on ab's left, 0 - co, -1 on ab's rigt
     int64_t x1 = b.x - a.x;
     int64_t y1 = b.y - a.y;
     int64_t x2 = c.x - a.x;
