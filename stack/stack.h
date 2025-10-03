@@ -6,29 +6,29 @@
 class Stack {
 public:
     void Push(int x) {
-        a.push_back(x);
+        a_.push_back(x);
     }
 
     bool Pop() {
         if (Empty()) {
             return false;
         }
-        a.pop_back();
+        a_.pop_back();
         return true;
     }
 
     int Top() const {
-        return a.back();
+        return a_.back();
     }
 
     bool Empty() const {
-        return a.empty();
+        return a_.empty();
     }
 
     size_t Size() const {
-        return a.size();
+        return a_.size();
     }
 
 private:
-    std::vector<int> a;
+    std::vector<int> a_;
 };
