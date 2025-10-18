@@ -6,8 +6,8 @@ if [ "$#" -lt 1 ]; then
     exit 1
 fi
 
-TASK = $1
-./run_linter.sh "$TASK"
+TASK=$1
+../run_linter.sh "$TASK"
 git add "../$TASK"
 git commit -m "$TASK"
 git push
