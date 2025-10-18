@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iterator>
 #include <cstddef>
 #include <utility>
 typedef long long ll;
@@ -9,6 +10,8 @@ class Sequence {
 public:
     Sequence(Iterator begin, Iterator end) : begin_{begin}, end_{end} {
     }
+    Sequence(const Sequence& o) : begin_{o.begin_}, end_{o.end_} {
+    }
 
     Iterator begin() const {
         return begin_;
@@ -17,7 +20,11 @@ public:
     Iterator end() const {
         return end_;
     }
-
+    Sequence& operator=(const Sequence& o){
+        begin_ = o.begin_;
+        end_ = o.end_;
+        return *this;
+    }
 private:
     Iterator begin_, end_;
 };
@@ -95,9 +102,9 @@ class ZipIterator {
 public:
     ZipIterator(AI ab, AI ae, BI bb, BI be, bool done)
         : a_(ab), ab_(ab), ae_(ae), b_(bb), bb_(bb), be_(be), done_(done) {
-            if (ab  == ae || be == bb) {
-                done_ = true;
-            }
+        if (ab == ae || be == bb) {
+            done_ = true;
+        }
     }
     ZipIterator& operator++() {
         ++a_;
@@ -139,4 +146,89 @@ auto Zip(const auto& a, const auto& b) {
 }
 
 // Group
+template <typename T>
+class GroupElementIterator {
+public:
+    GroupElementIterator(T el, ll cnt) : el_(el), cnt_(cnt) {
+    }
 
+    GroupElementIterator& operator++() {
+        cnt_ -= 1;
+        return *this;
+    }
+
+    auto operator*() const {
+        return el_;
+    }
+
+    bool operator==(const GroupElementIterator& rhs) const = default;
+
+private:
+    T el_;
+    ll cnt_;
+};
+
+auto GroupElement(auto el, ll n) {
+    auto begin = GroupElementIterator(el, n);
+    auto end = GroupElementIterator(el, 0);
+    return Sequence{begin, end};
+}
+
+template <typename AI>
+class GroupIterator {
+    using AEl = decltype(*std::declval<AI>());
+public:
+    GroupIterator(AI begin, AI end, bool is_end)
+        : nxt_(begin), ab_(begin), ae_(end) {
+        if (is_end || begin == end) {
+            done_ = true;
+            return;
+        }
+    }
+
+    GroupIterator& operator++() {
+        auto el = *nxt_;
+        ++nxt_;
+        while (nxt_ != ae_ && el == *nxt_) {
+            ++nxt_;
+        }
+        if (nxt_ == ae_) {
+            done_ = true;
+        }
+        return *this;
+    }
+
+    auto operator*() const {
+        AI cur = nxt_;
+        auto el = *cur;
+        ++cur;
+        int count = 1;
+        while (cur != ae_ && el == *cur) {
+            ++cur;
+            ++count;
+        }
+        return GroupElement(el, count);
+    }
+
+    bool operator==(const GroupIterator& rhs) const {
+        if (ab_ != rhs.ab_ || ae_ != rhs.ae_) {
+            return false;
+        }
+        if (done_ != rhs.done_) {
+            return false;
+        }
+        return done_ || (nxt_ == rhs.nxt_);
+    }
+
+private:
+    AI nxt_;
+    AI ab_;
+    AI ae_;
+    bool done_;
+};
+
+auto Group(const auto& a){
+    auto begin = GroupIterator(a.begin(), a.end(), false);
+    auto end = GroupIterator(a.begin(), a.end(), true);
+    return Sequence{begin, end};
+}
