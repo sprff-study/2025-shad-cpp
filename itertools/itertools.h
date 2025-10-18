@@ -3,7 +3,7 @@
 #include <iterator>
 #include <cstddef>
 #include <utility>
-typedef long long ll;
+typedef int64_t Ll;
 
 template <class Iterator>
 class Sequence {
@@ -20,11 +20,12 @@ public:
     Iterator end() const {
         return end_;
     }
-    Sequence& operator=(const Sequence& o){
+    Sequence& operator=(const Sequence& o) {
         begin_ = o.begin_;
         end_ = o.end_;
         return *this;
     }
+
 private:
     Iterator begin_, end_;
 };
@@ -68,7 +69,7 @@ auto Repeat(const auto& sequence, size_t n) {
 /// Range
 class RangeIterator {
 public:
-    RangeIterator(ll cur, ll step) : cur_(cur), step_(step) {
+    RangeIterator(Ll cur, Ll step) : cur_(cur), step_(step) {
     }
     RangeIterator& operator++() {
         cur_ += step_;
@@ -80,19 +81,19 @@ public:
     bool operator==(const RangeIterator& rhs) const = default;
 
 private:
-    ll cur_;
-    ll step_;
+    Ll cur_;
+    Ll step_;
 };
 
-auto Range(ll from, ll to, ll step = 1) {
+auto Range(Ll from, Ll to, Ll step = 1) {
     // Assume step > 0; from <= to;
-    ll end_pos = from + ((to - from + step - 1) / step) * step;
+    Ll end_pos = from + ((to - from + step - 1) / step) * step;
     auto begin = RangeIterator(from, step);
     auto end = RangeIterator(end_pos, step);
     return Sequence{begin, end};
 }
 
-auto Range(ll to) {
+auto Range(Ll to) {
     return Range(0, to, 1);
 }
 
@@ -149,7 +150,7 @@ auto Zip(const auto& a, const auto& b) {
 template <typename T>
 class GroupElementIterator {
 public:
-    GroupElementIterator(T el, ll cnt) : el_(el), cnt_(cnt) {
+    GroupElementIterator(T el, Ll cnt) : el_(el), cnt_(cnt) {
     }
 
     GroupElementIterator& operator++() {
@@ -165,10 +166,10 @@ public:
 
 private:
     T el_;
-    ll cnt_;
+    Ll cnt_;
 };
 
-auto GroupElement(auto el, ll n) {
+auto GroupElement(auto el, Ll n) {
     auto begin = GroupElementIterator(el, n);
     auto end = GroupElementIterator(el, 0);
     return Sequence{begin, end};
@@ -177,9 +178,9 @@ auto GroupElement(auto el, ll n) {
 template <typename AI>
 class GroupIterator {
     using AEl = decltype(*std::declval<AI>());
+
 public:
-    GroupIterator(AI begin, AI end, bool is_end)
-        : nxt_(begin), ab_(begin), ae_(end) {
+    GroupIterator(AI begin, AI end, bool is_end) : nxt_(begin), ab_(begin), ae_(end) {
         if (is_end || begin == end) {
             done_ = true;
             return;
@@ -227,7 +228,7 @@ private:
     bool done_;
 };
 
-auto Group(const auto& a){
+auto Group(const auto& a) {
     auto begin = GroupIterator(a.begin(), a.end(), false);
     auto end = GroupIterator(a.begin(), a.end(), true);
     return Sequence{begin, end};
