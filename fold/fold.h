@@ -1,7 +1,6 @@
 #pragma once
 #include <cstddef>
 
-
 struct Sum {
     template <typename T>
     T operator()(T a, T b) {
@@ -27,7 +26,7 @@ struct Concat {
 };
 
 class Length {
-    public:
+public:
     Length(size_t *cnt) : cnt_(cnt) {
     }
     template <typename T>
