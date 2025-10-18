@@ -34,14 +34,13 @@ std::map<std::string, std::vector<StudentName>> GetStudents(
     }
 
     for (auto& [u, res] : result) {
-        std::ranges::sort(res,CmpName);
+        std::ranges::sort(res, CmpName);
     }
-    
+
     return result;
 }
 
-
-bool CmpName( const StudentName& a, const StudentName& b) {  // a < b
+bool CmpName(const StudentName& a, const StudentName& b) {  // a < b
     if (a.surname != b.surname) {
         return a.surname < b.surname;
     }
@@ -65,4 +64,3 @@ bool Cmp(const StudentInfo& a, const StudentInfo& b) {  // a < b
     }
     return false;
 }
-
