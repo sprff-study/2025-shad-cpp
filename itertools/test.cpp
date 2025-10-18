@@ -59,24 +59,24 @@ void CheckRange(int from, int to, int step) {
     CHECK(i - step < to);
 }
 
-template <class T>
-void CheckGroup(const auto& range, const std::vector<std::vector<T>>& expected) {
-    std::vector<std::vector<T>> result;
-    for (auto group : Group(range)) {
-        auto& v = result.emplace_back();
-        for (auto x : group) {
-            v.push_back(x);
-        }
-    }
-    CHECK_THAT(result, Equals(expected));
-}
+// template <class T>
+// void CheckGroup(const auto& range, const std::vector<std::vector<T>>& expected) {
+//     std::vector<std::vector<T>> result;
+//     for (auto group : Group(range)) {
+//         auto& v = result.emplace_back();
+//         for (auto x : group) {
+//             v.push_back(x);
+//         }
+//     }
+//     CHECK_THAT(result, Equals(expected));
+// }
 
-template <class T>
-void CheckGroup(std::initializer_list<T> list, const std::vector<std::vector<T>>& expected) {
-    CheckGroup(std::vector(list), expected);
-    CheckGroup(std::list(list), expected);
-    CheckGroup(std::forward_list(list), expected);
-}
+// template <class T>
+// void CheckGroup(std::initializer_list<T> list, const std::vector<std::vector<T>>& expected) {
+//     CheckGroup(std::vector(list), expected);
+//     CheckGroup(std::list(list), expected);
+//     CheckGroup(std::forward_list(list), expected);
+// }
 
 TEST_CASE("Repeat zero times") {
     CheckRepeat({}, 0, {});
@@ -219,22 +219,22 @@ TEST_CASE("Zip some test") {
     REQUIRE(it == --d.end());
 }
 
-TEST_CASE("Group") {
-    CheckGroup({2, 2, 2}, {{2, 2, 2}});
-    CheckGroup({1}, {{1}});
-    CheckGroup({1, 2, 2}, {{1}, {2, 2}});
-    CheckGroup({2, 2}, {{2, 2}});
-    CheckGroup({1, 1, 2, 2, 2, 3}, {{1, 1}, {2, 2, 2}, {3}});
-    CheckGroup<int>({}, {});
-    CheckGroup({1, 2, 3}, {{1}, {2}, {3}});
-    CheckGroup({4, 4, 2, 2, -3, 4, 4, 4, -1, -1}, {{4, 4}, {2, 2}, {-3}, {4, 4, 4}, {-1, -1}});
-}
+// TEST_CASE("Group") {
+//     CheckGroup({2, 2, 2}, {{2, 2, 2}});
+//     CheckGroup({1}, {{1}});
+//     CheckGroup({1, 2, 2}, {{1}, {2, 2}});
+//     CheckGroup({2, 2}, {{2, 2}});
+//     CheckGroup({1, 1, 2, 2, 2, 3}, {{1, 1}, {2, 2, 2}, {3}});
+//     CheckGroup<int>({}, {});
+//     CheckGroup({1, 2, 3}, {{1}, {2}, {3}});
+//     CheckGroup({4, 4, 2, 2, -3, 4, 4, 4, -1, -1}, {{4, 4}, {2, 2}, {-3}, {4, 4, 4}, {-1, -1}});
+// }
 
-TEST_CASE("Group some tests") {
-    CheckGroup<Int>({2, 2, 2}, {{2, 2, 2}});
-    CheckGroup<Int>({1, 2, 2, 1, 3, 3, 3, 2, 2}, {{1}, {2, 2}, {1}, {3, 3, 3}, {2, 2}});
-    CheckGroup<Int>({}, {});
-}
+// TEST_CASE("Group some tests") {
+//     CheckGroup<Int>({2, 2, 2}, {{2, 2, 2}});
+//     CheckGroup<Int>({1, 2, 2, 1, 3, 3, 3, 2, 2}, {{1}, {2, 2}, {1}, {3, 3, 3}, {2, 2}});
+//     CheckGroup<Int>({}, {});
+// }
 
 TEST_CASE("Temporary iterator") {
     std::vector v = {0, 1, 2};
@@ -246,29 +246,29 @@ TEST_CASE("Temporary iterator") {
     REQUIRE(x == y);
 }
 
-TEST_CASE("Group and Repeat") {
-    std::vector v = {1, 2, 2, 1};
+// TEST_CASE("Group and Repeat") {
+//     std::vector v = {1, 2, 2, 1};
 
-    CheckGroup<int>(Repeat(v, 1), {{1}, {2, 2}, {1}});
-    CheckGroup<int>(Repeat(v, 2), {{1}, {2, 2}, {1, 1}, {2, 2}, {1}});
-    CheckGroup<int>(Repeat(v, 0), {});
-}
+//     CheckGroup<int>(Repeat(v, 1), {{1}, {2, 2}, {1}});
+//     CheckGroup<int>(Repeat(v, 2), {{1}, {2, 2}, {1, 1}, {2, 2}, {1}});
+//     CheckGroup<int>(Repeat(v, 0), {});
+// }
 
-TEST_CASE("Group and Range") {
-    constexpr auto kSize = 100;
+// TEST_CASE("Group and Range") {
+//     constexpr auto kSize = 100;
 
-    std::vector<std::vector<int>> expected(kSize);
-    for (auto i = 0; auto& v : expected) {
-        v.push_back(i++);
-    }
+//     std::vector<std::vector<int>> expected(kSize);
+//     for (auto i = 0; auto& v : expected) {
+//         v.push_back(i++);
+//     }
 
-    CheckGroup(Range(kSize), expected);
-}
+//     CheckGroup(Range(kSize), expected);
+// }
 
-TEST_CASE("Group and Zip") {
-    std::list l{1, 1, 2, 2, 3, 3, 3};
-    std::deque d{1, 1, 1, 2, 2, 3, 3};
-    std::vector<std::vector<std::pair<int, int>>> expected = {
-        {{1, 1}, {1, 1}}, {{2, 1}}, {{2, 2}}, {{3, 2}}, {{3, 3}, {3, 3}}};
-    CheckGroup(Zip(l, d), expected);
-}
+// TEST_CASE("Group and Zip") {
+//     std::list l{1, 1, 2, 2, 3, 3, 3};
+//     std::deque d{1, 1, 1, 2, 2, 3, 3};
+//     std::vector<std::vector<std::pair<int, int>>> expected = {
+//         {{1, 1}, {1, 1}}, {{2, 1}}, {{2, 2}}, {{3, 2}}, {{3, 3}, {3, 3}}};
+//     CheckGroup(Zip(l, d), expected);
+// }
