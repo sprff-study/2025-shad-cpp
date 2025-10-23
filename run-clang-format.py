@@ -105,7 +105,6 @@ def run_clang_format_diff(args, file):
             original = f.readlines()
     except IOError as exc:
         raise DiffError(str(exc))
-    invocation = [args.clang_format_executable, file]
 
     # Use of utf-8 to decode the process output.
     #
@@ -129,6 +128,43 @@ def run_clang_format_diff(args, file):
     if sys.version_info[0] >= 3:
         encoding_py3['encoding'] = 'utf-8'
 
+    if getattr(args, 'in_place', False):
+        # Apply changes in place
+        invocation = [args.clang_format_executable, '-i', file]
+        try:
+            proc = subprocess.Popen(
+                invocation,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                **encoding_py3)
+        except OSError as exc:
+            raise DiffError(str(exc))
+        proc_stdout = proc.stdout
+        proc_stderr = proc.stderr
+        if sys.version_info[0] < 3:
+            # make the pipes compatible with Python 3,
+            # reading lines should output unicode
+            encoding = 'utf-8'
+            proc_stdout = codecs.getreader(encoding)(proc_stdout)
+            proc_stderr = codecs.getreader(encoding)(proc_stderr)
+        # stdout is expected to be empty for -i, but collect stderr
+        _ = list(proc_stdout.readlines())
+        errs = list(proc_stderr.readlines())
+        proc.wait()
+        if proc.returncode:
+            raise DiffError("clang-format exited with status {}: '{}'".format(
+                proc.returncode, file), errs)
+        # Read back the reformatted file to produce a diff (may be empty)
+        try:
+            with io.open(file, 'r', encoding='utf-8') as f:
+                reformatted = f.readlines()
+        except IOError as exc:
+            raise DiffError(str(exc))
+        return make_diff(file, original, reformatted), errs
+
+    # Old behavior: get reformatted content from stdout and show diff
+    invocation = [args.clang_format_executable, file]
     try:
         proc = subprocess.Popen(
             invocation,
@@ -168,10 +204,10 @@ def colorize(diff_lines):
         return '\x1b[36m' + s + '\x1b[0m'
 
     def green(s):
-        return '\x1b[32m\x1b[7m' + s + '\x1b[0m'
+        return '\x1b[32m' + s + '\x1b[7m' + s.replace('\t', '→') + '\x1b[0m'
 
     def red(s):
-        return '\x1b[31m\x1b[7m' + s + '\x1b[0m'
+        return '\x1b[31m' + s + '\x1b[7m' + s.replace('\t', '→') + '\x1b[0m'
 
     for line in diff_lines:
         if line[:4] in ['--- ', '+++ ']:
@@ -179,9 +215,9 @@ def colorize(diff_lines):
         elif line.startswith('@@ '):
             yield cyan(line)
         elif line.startswith('+'):
-            yield green(line.replace('\t', '→'))
+            yield '\x1b[32m' + '\x1b[7m' + line.replace('\t', '→') + '\x1b[0m'
         elif line.startswith('-'):
-            yield red(line.replace('\t', '→'))
+            yield '\x1b[31m' + '\x1b[7m' + line.replace('\t', '→') + '\x1b[0m'
         else:
             yield line
 
@@ -244,6 +280,10 @@ def main():
         default=[],
         help='exclude paths matching the given glob-like pattern(s)'
         ' from recursive search')
+    parser.add_argument(
+        '--in-place',
+        action='store_true',
+        help='edit files in place (clang-format -i) and show diff vs original')
 
     args = parser.parse_args()
 

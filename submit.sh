@@ -9,5 +9,5 @@ fi
 TASK=$1
 ../run_linter.sh "$TASK"
 git add "../$TASK"
-git commit -m "$TASK"
+git commit -m "solve $TASK"
 git push
