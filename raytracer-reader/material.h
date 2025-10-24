@@ -11,6 +11,6 @@ struct Material {
     Vector specular_color;
     Vector intensity;
     double specular_exponent;
-    double refraction_index;
-    Vector albedo;
+    double refraction_index{1};
+    Vector albedo{1, 0, 0};
 };
