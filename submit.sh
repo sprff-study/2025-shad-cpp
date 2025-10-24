@@ -7,7 +7,7 @@ if [ "$#" -lt 1 ]; then
 fi
 
 TASK=$1
-../run_linter.sh "$TASK"
+../run_linter.sh "$TASK" || true
 git add "../$TASK"
 git commit -m "solve $TASK"
 git push

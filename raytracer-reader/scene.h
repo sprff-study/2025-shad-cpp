@@ -44,7 +44,7 @@ private:
 };
 
 std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::path& path) {
-    auto& logger = std::cout;
+    // auto&  logger = std::cout;
     std::unordered_map<std::string, Material> res;
     std::ifstream file(path.c_str(), std::ios::in);
     std::string line;
@@ -63,7 +63,7 @@ std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::p
             continue;
         }
 
-        logger << type << std::endl;
+        // logger << type << std::endl;
         if (type == "newmtl") {
             if (!current.name.empty()) {
                 res[current.name] = current;
@@ -87,7 +87,7 @@ std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::p
             current.albedo = ReadVector(in);
         } else {
             {
-                logger << type << "SKIPPED" << std::endl;
+                // logger << type << "SKIPPED" << std::endl;
             }
         }
     }
@@ -99,7 +99,7 @@ std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::p
 }
 
 Scene ReadScene(const std::filesystem::path& path) {
-    auto& logger = std::cout;
+    // auto&  logger = std::cout;
     std::vector<Object> objects;
     std::vector<SphereObject> spheres;
     std::vector<Light> lights;
@@ -122,7 +122,7 @@ Scene ReadScene(const std::filesystem::path& path) {
             continue;
         }
 
-        logger << type << std::endl;
+        // logger << type << std::endl;
         if (type == "mtllib") {
             std::string name;
             in >> name;
@@ -130,13 +130,13 @@ Scene ReadScene(const std::filesystem::path& path) {
             newpath.replace_filename(name);
             auto mats = ReadMaterials(newpath);
             for (auto [k, v] : mats) {
-                logger << "add material: " << k << std::endl;
+                // logger << "add material: " << k << std::endl;
                 materials[k] = v;
             }
         } else if (type == "usemtl") {
             std::string name;
             in >> name;
-            logger << "current material: " << name << std::endl;
+            // logger << "current material: " << name << std::endl;
             if (materials.count(name) == 0) {
                 throw "unexpected material";
             }
@@ -145,26 +145,26 @@ Scene ReadScene(const std::filesystem::path& path) {
             auto s = ReadSphere(in);
             s.material = current_material;
             spheres.push_back(s);
-            logger << "sphere added" << std::endl;
+            // logger << "sphere added" << std::endl;
         } else if (type == "v") {
             vertexes.push_back(ReadVector(in));
-            logger << "vertex added" << std::endl;
+            // logger << "vertex added" << std::endl;
         } else if (type == "vn") {
             normals.push_back(ReadVector(in));
-            logger << "normal added" << std::endl;
+            // logger << "normal added" << std::endl;
         } else if (type == "f") {
             auto triangles = ReadObject(in, vertexes, normals);
             for (auto t : triangles) {
                 t.material = current_material;
                 objects.push_back(t);
-                logger << "object added" << std::endl;
+                // logger << "object added" << std::endl;
             }
         } else if (type == "P") {
             lights.push_back(ReadLight(in));
-            logger << "light added" << std::endl;
+            // logger << "light added" << std::endl;
 
         } else {
-            logger << type << " SKIPPED" << std::endl;
+            // logger << type << " SKIPPED" << std::endl;
         }
     }
     return Scene{std::move(objects), std::move(spheres), std::move(lights), std::move(materials)};
