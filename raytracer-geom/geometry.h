@@ -161,3 +161,13 @@ double Distance(const Ray& ray, const Vector& a) {
     }
     return std::fabs(Length(CrossProduct(d, v)));
 }
+
+
+Vector GetNormal(Vector a, Vector b, Vector c) {
+    Vector n = CrossProduct({a, b}, {a, c});
+    if (Compare(Length(n)) == 0) {
+        throw "can't get notmal for 3 points in one line";
+    }
+    n.Normalize();
+    return n;
+}

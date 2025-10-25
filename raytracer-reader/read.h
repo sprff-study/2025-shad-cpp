@@ -4,6 +4,7 @@
 #include "vector.h"
 #include "object.h"
 #include "light.h"
+#include "geometry.h"
 
 #include <vector>
 #include <unordered_map>
@@ -67,14 +68,20 @@ std::vector<Object> ReadObject(std::istringstream& in, const std::vector<Vector>
         NegativeIndex(v1, verexes.size());
         NegativeIndex(v2, verexes.size());
         NegativeIndex(v3, verexes.size());
-        Triangle t(verexes[v1 - 1], verexes[v2 - 1], verexes[v3 - 1]);
+        auto a = verexes[v1 - 1];
+        auto b = verexes[v2 - 1];
+        auto c = verexes[v3 - 1];
+        Triangle t(a, b, c);
         std::array<Vector, 3> nrms;
         if (n1 != 0) {
             nrms[0] = normals[n1 - 1];
             nrms[1] = normals[n2 - 1];
             nrms[2] = normals[n3 - 1];
         } else {
-            throw "don't know which normals";
+            auto n = GetNormal(a, b, c);
+            nrms[0] = n;
+            nrms[1] = n;
+            nrms[2] = n;
         }
         res.push_back(Object(t, nrms));
     }

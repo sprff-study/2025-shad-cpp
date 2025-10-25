@@ -33,6 +33,8 @@
 
 .cache/
 __pycache__
+raytracer-debug/debug
+raytracer/debug
 .submit-repo/
 build*
 release*
