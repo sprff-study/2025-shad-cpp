@@ -25,8 +25,7 @@ public:
         data_[i * width_ + j] = x;
     }
 
-    Image Postprocess() {
-        Image post(width_, height_);
+    void ToneMapping() {
         double C = 0;
         for (int i = 0; i < height_; ++i) {
             for (int j = 0; j < width_; ++j) {
@@ -39,11 +38,42 @@ public:
             for (int j = 0; j < width_; ++j) {
                 FloatingRGB fx = data_[i * width_ + j];
                 auto toneMap = [&C](double x) { return x * (1 + x / C) / (1 + x); };
-                auto gammaCorrection = [](double x) { return pow(x, 1.0 / 2.2); };
+                data_[i * width_ + j] = FloatingRGB{
+                    toneMap(fx.r),
+                    toneMap(fx.g),
+                    toneMap(fx.b),
+                };
+            }
+        }
+    }
 
-                int r = 255 * gammaCorrection(toneMap(fx.r));
-                int g = 255 * gammaCorrection(toneMap(fx.g));
-                int b = 255 * gammaCorrection(toneMap(fx.b));
+    void GammaCorrection() {
+        for (int i = 0; i < height_; ++i) {
+            for (int j = 0; j < width_; ++j) {
+                FloatingRGB fx = data_[i * width_ + j];
+                auto gamma = [](double x) { return pow(x, 1.0 / 2.2); };
+                data_[i * width_ + j] = FloatingRGB{
+                    gamma(fx.r),
+                    gamma(fx.g),
+                    gamma(fx.b),
+                };
+            }
+        }
+    }
+    
+
+    Image ToImage() {
+        Image post(width_, height_);
+        
+        for (int i = 0; i < height_; ++i) {
+            for (int j = 0; j < width_; ++j) {
+                FloatingRGB fx = data_[i * width_ + j];
+                int r = 255 * fx.r;
+                int g = 255 * fx.g;
+                int b = 255 * fx.b;
+                assert(0 <= r && r <= 255);
+                assert(0 <= g && g <= 255);
+                assert(0 <= b && b <= 255);
 
                 post.SetPixel({r, g, b}, i, j);
             }

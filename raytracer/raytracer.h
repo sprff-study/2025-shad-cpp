@@ -8,25 +8,70 @@
 
 #include <filesystem>
 
-FloatingRGB RenderDepth(Scene& scene, Vector o, Vector p) {
+Ray EmitRay(const CameraOptions& camera_options, int i, int j) {
+    double length = 1;
+    double y = (1.0 * i + 0.5) / camera_options.screen_height;
+    double x = (1.0 * j + 0.5) / camera_options.screen_width;
+    double hszy = length * tan(camera_options.fov / 2);
+    double hszx = hszy / camera_options.screen_height * camera_options.screen_width;
+    double cy = hszy - 2.0 * hszy * y;
+    double cx = -hszx + 2.0 * hszx * x;
+    return Ray(camera_options.look_from, Vector(cx, cy, -1));
+}
 
-} 
+double Distance(const Scene& scene, Ray ray) {
+    double d = -1;
+    for (auto t : scene.GetObjects()) {
+        auto inter = GetIntersection(ray, t.polygon);
+        if (!inter) {
+            continue;
+        }
+        double x = (*inter).GetDistance();
+        if (d == -1 || d > x) {
+            d = x;
+        }
+    }
+    for (auto s : scene.GetSphereObjects()) {
+        auto inter = GetIntersection(ray, s.sphere);
+        if (!inter) {
+            continue;
+        }
+        double x = (*inter).GetDistance();
+        if (d == -1 || d > x) {
+            d = x;
+        }
+    }
+    return d;
+}
 
+Image RenderDepth(const Scene& scene, const CameraOptions& camera_options) {
+    FloatingImage res(camera_options.screen_width, camera_options.screen_height);
+    double D = 0;
+    for (int i = 0; i < camera_options.screen_height; ++i) {
+        for (int j = 0; j < camera_options.screen_width; ++j) {
+            double d = Distance(scene, EmitRay(camera_options, i, j));
+            D = std::max(D, d);
+        }
+    }
+    for (int i = 0; i < camera_options.screen_height; ++i) {
+        for (int j = 0; j < camera_options.screen_width; ++j) {
+            double d = Distance(scene, EmitRay(camera_options, i, j));
+            if (d == -1) {
+                d = D;
+            }
+            d /= D;
+            res.SetPixel(i, j, FloatingRGB{d, d, d});
+        }
+    }
+    return res.ToImage();
+}
 
 Image Render(const std::filesystem::path& path, const CameraOptions& camera_options,
              const RenderOptions& render_options) {
-    int width = camera_options.screen_width;
-    int height = camera_options.screen_height;
-    if (render_options.mode == RenderMode::kFull) {
-        return Image(width, height);
-    }
     auto scene = ReadScene(path);
-    FloatingImage result(width, height);
-    for (int i = 0; i < height; ++i) {
-        for (int j = 0; j < width; ++j) {
-            double m = 1.0 * i / height;
-            result.SetPixel(i, j, FloatingRGB{m, m, m});
-        }
+    if (render_options.mode == RenderMode::kDepth) {
+        return RenderDepth(scene, camera_options);
     }
-    return result.Postprocess();
+    
+    return Image{camera_options.screen_width, camera_options.screen_height};
 }

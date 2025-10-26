@@ -153,14 +153,6 @@ Vector GetBarycentricCoords(const Triangle& triangle, const Vector& point) {
     return Vector(u, v, w);
 }
 
-double Distance(const Ray& ray, const Vector& a) {
-    Vector v{ray.GetOrigin(), a};
-    Vector d{ray.GetDirection()};
-    if (Compare(DotProduct(d, v)) < 0) {
-        return Distance(ray.GetOrigin(), a);
-    }
-    return std::fabs(Length(CrossProduct(d, v)));
-}
 
 
 Vector GetNormal(Vector a, Vector b, Vector c) {
