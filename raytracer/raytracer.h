@@ -96,11 +96,54 @@ Image RenderDepth(const Scene& scene, const CameraOptions& camera_options) {
     return res.ToImage();
 }
 
+Vector Normal(const Scene& scene, Ray ray) {
+    double d = -1;
+    Vector n{-1,-1,-1};
+
+    for (auto t : scene.GetObjects()) {
+        auto inter = GetIntersection(ray, t.polygon);
+        if (!inter) {
+            continue;
+        }
+        double x = (*inter).GetDistance();
+        if (d == -1 || d > x) {
+            d = x;
+            n = (*inter).GetNormal();
+        }
+    }
+    for (auto s : scene.GetSphereObjects()) {
+        auto inter = GetIntersection(ray, s.sphere);
+        if (!inter) {
+            continue;
+        }
+        double x = (*inter).GetDistance();
+        if (d == -1 || d > x) {
+            d = x;
+            n = (*inter).GetNormal();
+        }
+    }
+    return n;
+}
+
+Image RenderNormal(const Scene& scene, const CameraOptions& camera_options) {
+    FloatingImage res(camera_options.screen_width, camera_options.screen_height);
+    for (int i = 0; i < camera_options.screen_height; ++i) {
+        for (int j = 0; j < camera_options.screen_width; ++j) {
+            Vector n = Normal(scene, EmitRay(camera_options, i, j));
+            res.SetPixel(i, j, FloatingRGB{n[0]/2.0 + 0.5, n[1]/2.0 + 0.5, n[2]/2.0 + 0.5});
+        }
+    }
+    return res.ToImage();
+}
+
 Image Render(const std::filesystem::path& path, const CameraOptions& camera_options,
              const RenderOptions& render_options) {
     auto scene = ReadScene(path);
     if (render_options.mode == RenderMode::kDepth) {
         return RenderDepth(scene, camera_options);
+    }
+    if (render_options.mode == RenderMode::kNormal) {
+        return RenderNormal(scene, camera_options);
     }
 
     return Image{camera_options.screen_width, camera_options.screen_height};
