@@ -9,27 +9,27 @@
 #include <filesystem>
 
 Vector CamToWorld(const Vector& pos_cam, const Vector& from, const Vector& to) {
-    Vector F = to - from;
-    F.Normalize();
+    Vector f = to - from;
+    f.Normalize();
 
     Vector up = Vector(0, 1, 0);
-    if (Compare(DotProduct(F, up) - 1) == 0) {
+    if (Compare(DotProduct(f, up) - 1) == 0) {
         up = Vector(0, 0, 1);
-    } else if (Compare(DotProduct(F, up) + 1) == 0) {
+    } else if (Compare(DotProduct(f, up) + 1) == 0) {
         up = Vector(0, 0, -1);
     }
 
-    Vector R = CrossProduct(F, up);
-    R.Normalize();
+    Vector r = CrossProduct(f, up);
+    r.Normalize();
 
-    Vector U = CrossProduct(R, F);
-    U.Normalize();
+    Vector u = CrossProduct(r, f);
+    u.Normalize();
 
     const double x = pos_cam[0];
     const double y = pos_cam[1];
     const double z = pos_cam[2];
 
-    return R * x + U * y - F * z;
+    return r * x + u * y - f * z;
 }
 
 Ray EmitRay(const CameraOptions& camera_options, int i, int j) {
@@ -41,11 +41,11 @@ Ray EmitRay(const CameraOptions& camera_options, int i, int j) {
     double cy = hszy - 2.0 * hszy * y;
     double cx = -hszx + 2.0 * hszx * x;
 
-    Vector cameraPos = Vector(cx, cy, -1);
+    Vector camera_pos = Vector(cx, cy, -1);
     Vector from = camera_options.look_from;
     Vector to = camera_options.look_to;
 
-    return Ray(from, CamToWorld(cameraPos, from, to));
+    return Ray(from, CamToWorld(camera_pos, from, to));
 }
 
 double Distance(const Scene& scene, Ray ray) {
@@ -75,21 +75,21 @@ double Distance(const Scene& scene, Ray ray) {
 
 Image RenderDepth(const Scene& scene, const CameraOptions& camera_options) {
     FloatingImage res(camera_options.screen_width, camera_options.screen_height);
-    double D = 0;
+    double dmin = 0;
     for (int i = 0; i < camera_options.screen_height; ++i) {
         for (int j = 0; j < camera_options.screen_width; ++j) {
             double d = Distance(scene, EmitRay(camera_options, i, j));
-            D = std::max(D, d);
+            dmin = std::max(dmin, d);
         }
     }
-    assert(Compare(D) > 0);
+    assert(Compare(dmin) > 0);
     for (int i = 0; i < camera_options.screen_height; ++i) {
         for (int j = 0; j < camera_options.screen_width; ++j) {
             double d = Distance(scene, EmitRay(camera_options, i, j));
             if (d == -1) {
-                d = D;
+                d = dmin;
             }
-            d /= D;
+            d /= dmin;
             res.SetPixel(i, j, FloatingRGB{d, d, d});
         }
     }
@@ -98,7 +98,7 @@ Image RenderDepth(const Scene& scene, const CameraOptions& camera_options) {
 
 Vector Normal(const Scene& scene, Ray ray) {
     double d = -1;
-    Vector n{-1,-1,-1};
+    Vector n{-1, -1, -1};
 
     for (auto t : scene.GetObjects()) {
         auto inter = GetIntersection(ray, t.polygon);
@@ -130,7 +130,7 @@ Image RenderNormal(const Scene& scene, const CameraOptions& camera_options) {
     for (int i = 0; i < camera_options.screen_height; ++i) {
         for (int j = 0; j < camera_options.screen_width; ++j) {
             Vector n = Normal(scene, EmitRay(camera_options, i, j));
-            res.SetPixel(i, j, FloatingRGB{n[0]/2.0 + 0.5, n[1]/2.0 + 0.5, n[2]/2.0 + 0.5});
+            res.SetPixel(i, j, FloatingRGB{n[0] / 2.0 + 0.5, n[1] / 2.0 + 0.5, n[2] / 2.0 + 0.5});
         }
     }
     return res.ToImage();

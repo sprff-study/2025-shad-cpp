@@ -26,22 +26,22 @@ public:
     }
 
     void ToneMapping() {
-        double C = 0;
+        double c = 0;
         for (int i = 0; i < height_; ++i) {
             for (int j = 0; j < width_; ++j) {
                 FloatingRGB fx = data_[i * width_ + j];
-                C = std::max({C, fx.r, fx.g, fx.b});
+                c = std::max({c, fx.r, fx.g, fx.b});
             }
         }
-        C *= C;
+        c *= c;
         for (int i = 0; i < height_; ++i) {
             for (int j = 0; j < width_; ++j) {
                 FloatingRGB fx = data_[i * width_ + j];
-                auto toneMap = [&C](double x) { return x * (1 + x / C) / (1 + x); };
+                auto tone_map = [&c](double x) { return x * (1 + x / c) / (1 + x); };
                 data_[i * width_ + j] = FloatingRGB{
-                    toneMap(fx.r),
-                    toneMap(fx.g),
-                    toneMap(fx.b),
+                    tone_map(fx.r),
+                    tone_map(fx.g),
+                    tone_map(fx.b),
                 };
             }
         }

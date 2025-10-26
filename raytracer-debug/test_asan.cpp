@@ -24,9 +24,11 @@ void CheckImage(std::string_view obj_filename, std::string_view result_filename,
 TEST_CASE("Shading parts") {
     CameraOptions camera_opts{640, 480};
     RenderOptions render_opts{1, RenderMode::kDepth};
-    // CheckImage("shading_parts/scene.obj", "shading_parts/depth.png", camera_opts, render_opts, "../raytracer/debug/shading_parts_depth_debug.png");
+    CheckImage("shading_parts/scene.obj", "shading_parts/depth.png", camera_opts, render_opts,
+               "../raytracer/debug/shading_parts_depth_debug.png");
     render_opts.mode = RenderMode::kNormal;
-    CheckImage("shading_parts/scene.obj", "shading_parts/normal.png", camera_opts, render_opts, "../raytracer/debug/shading_parts_normal_debug.png");
+    CheckImage("shading_parts/scene.obj", "shading_parts/normal.png", camera_opts, render_opts,
+               "../raytracer/debug/shading_parts_normal_debug.png");
 }
 
 TEST_CASE("Triangle") {
@@ -35,9 +37,11 @@ TEST_CASE("Triangle") {
                               .look_from = {0., 2., 0.},
                               .look_to = {0., 0., 0.}};
     RenderOptions render_opts{1, RenderMode::kDepth};
-    // CheckImage("triangle/scene.obj", "triangle/depth.png", camera_opts, render_opts, "../raytracer/debug/triangle_depth_debug.png");
+    CheckImage("triangle/scene.obj", "triangle/depth.png", camera_opts, render_opts,
+               "../raytracer/debug/triangle_depth_debug.png");
     render_opts.mode = RenderMode::kNormal;
-    CheckImage("triangle/scene.obj", "triangle/normal.png", camera_opts, render_opts, "../raytracer/debug/triangle_normal_debug.png");
+    CheckImage("triangle/scene.obj", "triangle/normal.png", camera_opts, render_opts,
+               "../raytracer/debug/triangle_normal_debug.png");
 }
 
 TEST_CASE("Triangle2") {
@@ -46,9 +50,11 @@ TEST_CASE("Triangle2") {
                               .look_from = {0., -2., 0.},
                               .look_to = {0., 0., 0.}};
     RenderOptions render_opts{1, RenderMode::kDepth};
-    // CheckImage("triangle/scene.obj", "triangle/depth2.png", camera_opts, render_opts, "../raytracer/debug/triangle_depth2_debug.png");
+    CheckImage("triangle/scene.obj", "triangle/depth2.png", camera_opts, render_opts,
+               "../raytracer/debug/triangle_depth2_debug.png");
     render_opts.mode = RenderMode::kNormal;
-    CheckImage("triangle/scene.obj", "triangle/normal2.png", camera_opts, render_opts, "../raytracer/debug/triangle_normal2_debug.png");
+    CheckImage("triangle/scene.obj", "triangle/normal2.png", camera_opts, render_opts,
+               "../raytracer/debug/triangle_normal2_debug.png");
 }
 
 TEST_CASE("Box with spheres") {
@@ -58,7 +64,9 @@ TEST_CASE("Box with spheres") {
                               .look_from = {0., .7, 1.75},
                               .look_to = {0., .7, 0.}};
     RenderOptions render_opts{4, RenderMode::kDepth};
-    // CheckImage("box/cube.obj", "box/depth.png", camera_opts, render_opts, "../raytracer/debug/box_depth_debug.png");
+    CheckImage("box/cube.obj", "box/depth.png", camera_opts, render_opts,
+               "../raytracer/debug/box_depth_debug.png");
     render_opts.mode = RenderMode::kNormal;
-    CheckImage("box/cube.obj", "box/normal.png", camera_opts, render_opts,  "../raytracer/debug/box_normal_debug.png");
+    CheckImage("box/cube.obj", "box/normal.png", camera_opts, render_opts,
+               "../raytracer/debug/box_normal_debug.png");
 }
