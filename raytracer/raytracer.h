@@ -26,34 +26,34 @@
 struct PreparedCameraOptions {
     CameraOptions options;
     PreparedCameraOptions(const CameraOptions& c) : options(c) {
-        hszy = tan(c.fov / 2);
-        hszx = hszy / c.screen_height * c.screen_width;
-        f = c.look_to - c.look_from;
-        f.Normalize();
+        hszy_ = tan(c.fov / 2);
+        hszx_ = hszy_ / c.screen_height * c.screen_width;
+        f_ = c.look_to - c.look_from;
+        f_.Normalize();
 
         Vector up = Vector(0, 1, 0);
-        if (Compare(DotProduct(f, up) - 1) == 0) {
+        if (Compare(DotProduct(f_, up) - 1) == 0) {
             up = Vector(0, 0, 1);
-        } else if (Compare(DotProduct(f, up) + 1) == 0) {
+        } else if (Compare(DotProduct(f_, up) + 1) == 0) {
             up = Vector(0, 0, -1);
         }
-        r = CrossProduct(f, up);
-        r.Normalize();
-        u = CrossProduct(r, f);
-        u.Normalize();
+        r_ = CrossProduct(f_, up);
+        r_.Normalize();
+        u_ = CrossProduct(r_, f_);
+        u_.Normalize();
     }
 
     Ray EmitRay(int i, int j) const {
         double y = (1.0 * i + 0.5) / options.screen_height;
         double x = (1.0 * j + 0.5) / options.screen_width;
-        double cy = hszy - 2.0 * hszy * y;
-        double cx = -hszx + 2.0 * hszx * x;
-        return Ray(options.look_from, r * cx + u * cy + f);
+        double cy = hszy_ - 2.0 * hszy_ * y;
+        double cx = -hszx_ + 2.0 * hszx_ * x;
+        return Ray(options.look_from, r_ * cx + u_ * cy + f_);
     }
 
 private:
-    Vector f, r, u;
-    double hszy, hszx;
+    Vector f_, r_, u_;
+    double hszy_, hszx_;
 };
 
 double Distance(const Scene& scene, Ray ray) {
