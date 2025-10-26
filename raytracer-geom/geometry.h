@@ -153,8 +153,6 @@ Vector GetBarycentricCoords(const Triangle& triangle, const Vector& point) {
     return Vector(u, v, w);
 }
 
-
-
 Vector GetNormal(Vector a, Vector b, Vector c) {
     Vector n = CrossProduct({a, b}, {a, c});
     if (Compare(Length(n)) == 0) {
