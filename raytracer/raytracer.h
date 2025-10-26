@@ -8,6 +8,20 @@
 
 #include <filesystem>
 #include <filesystem>
+// #include <chrono>
+
+// std::chrono::steady_clock::time_point start, last;
+// void bench(const std::string& label = "") {
+//     auto now = std::chrono::steady_clock::now();
+//     std::cout << label << ": ";
+//     std::cout << "start ("
+//               << std::chrono::duration_cast<std::chrono::nanoseconds>(now - start).count()
+//               << "[ns]) ";
+//     std::cout << "last ("
+//               << std::chrono::duration_cast<std::chrono::nanoseconds>(now - last).count()
+//               << "[ns])\n";
+//     last = now;
+// }
 
 struct PreparedCameraOptions {
     CameraOptions options;
@@ -71,9 +85,12 @@ Image RenderDepth(const Scene& scene, const PreparedCameraOptions& camera_option
     FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
     double dmax = 0;
     for (int i = 0; i < camera_options.options.screen_height; ++i) {
+        // bench("finish row");
         for (int j = 0; j < camera_options.options.screen_width; ++j) {
-            Ray _ = camera_options.EmitRay(i, j);
-            double d = 123;
+            auto ray = camera_options.EmitRay(i, j);
+            // bench("ray emmited");
+            double d = Distance(scene, ray);
+            // bench("distance");
             dmax = std::max(dmax, d);
         }
     }
@@ -101,12 +118,31 @@ Vector Normal(const Scene& scene, Ray ray) {
         if (!inter) {
             continue;
         }
-        double x = (*inter).GetDistance();
-        if (d == -1 || d > x) {
-            d = x;
-            n = (*inter).GetNormal();
+        double x = inter->GetDistance();
+        if (d > 0 && d < x) {
+            continue;
         }
+
+        Vector def = inter->GetNormal();
+        Vector bc = GetBarycentricCoords(t.polygon, inter->GetPosition());
+        Vector n0 = *t.GetNormal(0);
+        Vector n1 = *t.GetNormal(1);
+        Vector n2 = *t.GetNormal(2);
+
+        Vector ns = n0 * bc[0] + n1 * bc[1] + n2 * bc[2];
+        if (Compare(Length(ns)) == 0) {
+            ns = def;
+        } else {
+            ns.Normalize();
+        }
+
+        if (DotProduct(ns, def) < 0.0) {
+            ns *= -1.0;
+        }
+        d = x;
+        n = ns;
     }
+
     for (auto s : scene.GetSphereObjects()) {
         auto inter = GetIntersection(ray, s.sphere);
         if (!inter) {
@@ -134,8 +170,11 @@ Image RenderNormal(const Scene& scene, const PreparedCameraOptions& camera_optio
 
 Image Render(const std::filesystem::path& path, const CameraOptions& camera_options,
              const RenderOptions& render_options) {
+    // start = std::chrono::steady_clock::now();
+    // last = std::chrono::steady_clock::now();
     PreparedCameraOptions prep{camera_options};
     auto scene = ReadScene(path);
+    // bench("Read Scene");
     if (render_options.mode == RenderMode::kDepth) {
         return RenderDepth(scene, prep);
     }
