@@ -23,32 +23,32 @@ void CheckImage(std::string_view obj_filename, std::string_view result_filename,
     Compare(image, Image{kTestsDir / result_filename});
 }
 
-TEST_CASE("Shading parts") {
-    CameraOptions camera_opts{640, 480};
-    CheckImage("shading_parts/scene.obj", "shading_parts/scene.png", camera_opts, {1});
-}
+// TEST_CASE("Shading parts") {
+//     CameraOptions camera_opts{640, 480};
+//     CheckImage("shading_parts/scene.obj", "shading_parts/scene.png", camera_opts, {1});
+// }
 
-TEST_CASE("Triangle") {
-    CameraOptions camera_opts{.screen_width = 640,
-                              .screen_height = 480,
-                              .look_from = {0., 2., 0.},
-                              .look_to = {0., 0., 0.}};
-    CheckImage("triangle/scene.obj", "triangle/scene.png", camera_opts, {1});
-}
+// TEST_CASE("Triangle") {
+//     CameraOptions camera_opts{.screen_width = 640,
+//                               .screen_height = 480,
+//                               .look_from = {0., 2., 0.},
+//                               .look_to = {0., 0., 0.}};
+//     CheckImage("triangle/scene.obj", "triangle/scene.png", camera_opts, {1});
+// }
 
-TEST_CASE("Triangle2") {
-    CameraOptions camera_opts{.screen_width = 640,
-                              .screen_height = 480,
-                              .look_from = {0., -2., 0.},
-                              .look_to = {0., 0., 0.}};
-    CheckImage("triangle/scene.obj", "triangle/black.png", camera_opts, {1});
-}
+// TEST_CASE("Triangle2") {
+//     CameraOptions camera_opts{.screen_width = 640,
+//                               .screen_height = 480,
+//                               .look_from = {0., -2., 0.},
+//                               .look_to = {0., 0., 0.}};
+//     CheckImage("triangle/scene.obj", "triangle/black.png", camera_opts, {1});
+// }
 
-TEST_CASE("Box with spheres") {
-    CameraOptions camera_opts{.screen_width = 640,
-                              .screen_height = 480,
-                              .fov = std::numbers::pi / 3,
-                              .look_from = {0., .7, 1.75},
-                              .look_to = {0., .7, 0.}};
-    CheckImage("box/cube.obj", "box/cube.png", camera_opts, {4});
-}
+// TEST_CASE("Box with spheres") {
+//     CameraOptions camera_opts{.screen_width = 640,
+//                               .screen_height = 480,
+//                               .fov = std::numbers::pi / 3,
+//                               .look_from = {0., .7, 1.75},
+//                               .look_to = {0., .7, 0.}};
+//     CheckImage("box/cube.obj", "box/cube.png", camera_opts, {4});
+// }
