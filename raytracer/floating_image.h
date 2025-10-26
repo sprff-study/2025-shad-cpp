@@ -60,11 +60,9 @@ public:
             }
         }
     }
-    
 
     Image ToImage() {
         Image post(width_, height_);
-        
         for (int i = 0; i < height_; ++i) {
             for (int j = 0; j < width_; ++j) {
                 FloatingRGB fx = data_[i * width_ + j];
