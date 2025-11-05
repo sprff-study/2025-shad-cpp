@@ -42,6 +42,7 @@ public:
     }
 
     SlowNumber& operator=(const SlowNumber& other) {
+        std::cout << "ERRROR HERE";
         if (value_) {
             delete value_;
             value_ = nullptr;
@@ -118,7 +119,7 @@ int main() {
         } else if (cmd.empty()) {
             break;
         } else {
-            std::cout << "unknown cmd\n";
+            std::cout << "unknown cmd: " << cmd << "\n";
         }
     }
 }

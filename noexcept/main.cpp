@@ -39,6 +39,8 @@ void Throw() {
 }
 
 void LLFn() {
+    std::cerr << "VISIT LL\n";
+
     static bool Visited = false;
     if (!Visited) {
         Visited = true;
@@ -48,6 +50,7 @@ void LLFn() {
 }
 
 void LRFn() {
+    std::cerr << "VISIT LR\n";
     static bool Visited = false;
     if (!Visited) {
         Visited = true;
@@ -57,6 +60,7 @@ void LRFn() {
 }
 
 void RLFn() {
+    std::cerr << "VISIT RL\n";
     static bool Visited = false;
     if (!Visited) {
         Visited = true;
@@ -66,6 +70,7 @@ void RLFn() {
 }
 
 void RRFn() {
+    std::cerr << "VISIT RR\n";
     static bool Visited = false;
     if (!Visited) {
         Visited = true;
@@ -78,6 +83,7 @@ void LFn() {
     while (true) {
         --StepsLeft;
         try {
+            std::cerr << "AT L\n";
             if (LimitedGetline() == "L") {
                 LLFn();
             } else {
@@ -91,6 +97,7 @@ void RFn() {
     while (true) {
         --StepsLeft;
         try {
+            std::cerr << "AT R\n";
             if (LimitedGetline() == "L") {
                 RLFn();
             } else {
@@ -104,6 +111,7 @@ void RootFn() {
     while (true) {
         --StepsLeft;
         try {
+            std::cerr << "AT ROOT\n";
             if (LimitedGetline() == "L") {
                 LFn();
             } else {

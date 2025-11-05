@@ -1,1 +1,9 @@
-throw
+L
+L
+throw L
+R
+throw Root
+R
+L
+throw R
+R
