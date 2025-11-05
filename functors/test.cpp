@@ -45,7 +45,6 @@ TEST_CASE("Unary") {
     CHECK_THAT(a, Equals(std::vector{10, 1, 3}));
 }
 
-/*
 TEST_CASE("ComparisonsCount Int", "[.]") {
     std::vector a = {1, 3, -1, 10, 9, 8, 7, 1, 2};
     CHECK(ComparisonsCount(a.begin(), a.end()) == 31);
@@ -62,4 +61,3 @@ TEST_CASE("ComparisonsCount Big", "[.]") {
     std::ranges::shuffle(a, std::mt19937{1'453'123});
     CHECK(ComparisonsCount(a.begin(), a.end()) == 23'558'870);
 }
-*/

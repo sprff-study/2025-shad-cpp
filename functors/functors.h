@@ -39,10 +39,11 @@ auto MakeReverseBinaryFunctor(auto functor) {
 
 template <class Iterator>
 size_t ComparisonsCount(Iterator first, Iterator last) {
-    size_t cnt;
-    auto cmp = [&cnt](Iterator a, Iterator b) {
+    size_t cnt = 0;
+    auto cmp = [&cnt](const auto &a, const auto &b) {
         ++cnt;
-        return *a < *b;
+        return a < b;
     };
     std::sort(first, last, cmp);
+    return cnt;
 }
