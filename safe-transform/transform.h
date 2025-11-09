@@ -14,10 +14,10 @@ void TransformIf(Iter begin, Iter end, Pred p, Func f) {
         i = 0;
         for (auto it = begin; it != end; ++it, ++i) {
             if (p(*it)) {
-                // try {
-                log.emplace(i, *it);
-                // } catch (...) {
-                // }
+                try {
+                    log.emplace(i, *it);
+                } catch (...) {
+                }
                 f(*it);
             }
         }

@@ -220,9 +220,9 @@ TEST_CASE("Stress") {
         start = std::chrono::high_resolution_clock::now();
         std::cout << "done " << i << ' ' << diff.count() << std::endl;
 
-        // for (auto j : std::views::iota(0, kMaxCount)) {
-        //     REQUIRE(data[j].x == j);
-        // }
+        for (auto j : std::views::iota(0, kMaxCount)) {
+            REQUIRE(data[j].x == j);
+        }
     }
 }
 
