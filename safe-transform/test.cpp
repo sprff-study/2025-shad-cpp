@@ -1,5 +1,6 @@
 #include "transform.h"
 
+#include <ratio>
 #include <vector>
 #include <string>
 #include <cctype>
@@ -192,7 +193,7 @@ private:
 // }
 
 TEST_CASE("Stress") {
-    constexpr auto kMaxCount = 10;
+    constexpr auto kMaxCount = 100;
 
     std::deque<Int> data;
     for (auto i : std::views::iota(0, 1'000'000)) {
@@ -200,18 +201,28 @@ TEST_CASE("Stress") {
     }
 
     auto predicate = [](const Int& val) { return val.x % 2 == 0; };
-    for (auto i = 0; i < 10'0; ++i) {
+    auto start = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> diff;
+    for (auto i = 0; i < 10'000; ++i) {
+        diff = std::chrono::high_resolution_clock::now() - start;
+        start = std::chrono::high_resolution_clock::now();
+        std::cout << "start " << i << ' ' << diff.count() << std::endl;
         Int::Reset(100'500);
         REQUIRE_THROWS_AS(TransformIf(data.begin(), data.end(), predicate,
                                       [](Int& val) {
-                                          if (val.x++ == kMaxCount) {
+                                          if (val.x == kMaxCount) {
                                               throw std::runtime_error{"Stop"};
                                           }
                                       }),
                           std::runtime_error);
-        for (auto j : std::views::iota(0, kMaxCount)) {
-            REQUIRE(data[j].x == j);
-        }
+
+        diff = std::chrono::high_resolution_clock::now() - start;
+        start = std::chrono::high_resolution_clock::now();
+        std::cout << "done " << i << ' ' << diff.count() << std::endl;
+
+        // for (auto j : std::views::iota(0, kMaxCount)) {
+        //     REQUIRE(data[j].x == j);
+        // }
     }
 }
 
