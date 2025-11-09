@@ -25,7 +25,7 @@ void TransformIf(Iter begin, Iter end, Pred p, Func f) {
         int maxi = i;
         i = 0;
         for (auto it = begin; it != end; ++it, ++i) {
-            if (i >= maxi) {
+            if (i > maxi) {
                 break;
             }
             if (log.contains(i)) {
