@@ -79,6 +79,18 @@ void RequireError(const Try<void>& a, int code) {
         REQUIRE((e.code().value() == code));
     }
 }
+template <class T>
+concept HasValue = requires(T t) {
+    { t.Value() };
+};
+
+template <class T>
+void CheckCopyAndMove() {
+    STATIC_CHECK_FALSE(std::copy_constructible<T>);
+    STATIC_CHECK_FALSE(std::move_constructible<T>);
+    STATIC_CHECK_FALSE(std::assignable_from<T&, const T&>);
+    STATIC_CHECK_FALSE(std::assignable_from<T&, T&&>);
+}
 
 TEST_CASE("Try constructors") {
     Try<int> a;
@@ -127,11 +139,6 @@ TEST_CASE("Tricky types") {
     RequireError(g, std::out_of_range{"out"});
 }
 
-template <class T>
-concept HasValue = requires(T t) {
-    { t.Value() };
-};
-
 TEST_CASE("Try<void> is really void") {
     STATIC_CHECK_FALSE(HasValue<Try<void>>);
     STATIC_CHECK_FALSE(std::constructible_from<Try<void>, int>);
@@ -148,14 +155,6 @@ TEST_CASE("Try<void> constructors") {
 
     Try<void> b{tag::kEx, std::bad_weak_ptr{}};
     RequireError(b, std::bad_weak_ptr{});
-}
-
-template <class T>
-void CheckCopyAndMove() {
-    STATIC_CHECK_FALSE(std::copy_constructible<T>);
-    STATIC_CHECK_FALSE(std::move_constructible<T>);
-    STATIC_CHECK_FALSE(std::assignable_from<T&, const T&>);
-    STATIC_CHECK_FALSE(std::assignable_from<T&, T&&>);
 }
 
 TEST_CASE("Try copy / move") {
