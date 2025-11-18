@@ -5,6 +5,8 @@
 #include "options/render_options.h"
 #include "image.h"
 #include "floating_image.h"
+#include "ray.h"
+#include "common.h"
 #include "scene.h"
 #include "vector.h"
 
@@ -115,14 +117,18 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
 Vector ColorInPoint(const Scene& scene, ShotResult shr) {
     auto p = shr.point;
     auto n = shr.n;
-    auto d = shr.distance;
 
     Vector res{};
     for (auto light : scene.GetLights()) {
-        if (Compare(Distance(p, light.position), d) >= 0) { // may be just > 0
-            continue;
-        } 
         Vector v = {p, light.position};
+        Vector ray_origin = p + n * kEps;
+        Vector ray_direction = light.position - ray_origin;
+        double light_distance = Distance(ray_origin, light.position);
+        
+        auto shr2 = Shot(scene, Ray{ray_origin, ray_direction});
+        if (shr2 && Compare(shr2->distance,  light_distance ) < 0) {
+            continue;
+        }
         v.Normalize();
         double dot = DotProduct(v, n);
         if (dot > 0) {
