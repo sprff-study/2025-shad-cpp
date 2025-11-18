@@ -124,13 +124,22 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
     return res;
 }
 
-Vector ColorInPoint(const Scene& scene, ShotResult shr) {
+const Vector kNoObject = Vector();
+
+Vector TraceRay(const Scene& scene, Ray ray, int depth) {
+    auto oshr = Shot(scene, ray);
+    if (!oshr) {
+        return kNoObject;
+    }
+    auto shr = *oshr;
+
+
     auto p = shr.point;
     auto n = shr.n;
     auto m = shr.material;
 
+    // just colors
     Vector diffuse{}, specular{};
-
     for (auto light : scene.GetLights()) {
         Vector ray_origin = p + n * kEps;
         Vector ray_direction = light.position - ray_origin;
@@ -163,18 +172,26 @@ Vector ColorInPoint(const Scene& scene, ShotResult shr) {
     res += m->ambient_color;
     res += m->intensity;
 
+
+    // reflections
+    if (depth > 0 && Compare(m->albedo[1]) > 0) {
+        Vector reflected_direction = Reflect(shr.original.GetDirection(), n);
+        Vector reflect_origin = p + n * kEps;
+        Ray reflect_ray = Ray{reflect_origin, reflected_direction};
+        auto reflected = TraceRay(scene, reflect_ray, depth - 1);
+        res += reflected * m->albedo[1];
+    }
+
+
     return res;
 }
 
-Image RenderFull(const Scene& scene, const PreparedCameraOptions& camera_options) {
+Image RenderFull(const Scene& scene, const PreparedCameraOptions& camera_options, int depth) {
     FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
     for (int i = 0; i < camera_options.options.screen_height; ++i) {
         for (int j = 0; j < camera_options.options.screen_width; ++j) {
-            auto shr = Shot(scene, camera_options.EmitRay(i, j));
-            Vector color = Vector(0, 0, 0);
-            if (shr) {
-                color = ColorInPoint(scene, *shr);
-            }
+            auto ray = camera_options.EmitRay(i, j);
+            auto color = TraceRay(scene, ray, depth);
             res.SetPixel(i, j, FloatingRGB{color[0], color[1], color[2]});
         }
     }
@@ -245,7 +262,7 @@ Image Render(const std::filesystem::path& path, const CameraOptions& camera_opti
         return RenderNormal(scene, prep);
     }
     if (render_options.mode == RenderMode::kFull) {
-        return RenderFull(scene, prep);
+        return RenderFull(scene, prep, render_options.depth);
     }
 
     return Image{camera_options.screen_width, camera_options.screen_height};
