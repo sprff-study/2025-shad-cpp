@@ -1,5 +1,6 @@
 #pragma once
 
+#include "geometry.h"
 #include "material.h"
 #include "options/camera_options.h"
 #include "options/render_options.h"
@@ -64,13 +65,14 @@ private:
 struct ShotResult {
     double distance{-1};
     Vector point{-1, -2, -3};
-    Vector n{-1,-2,-3};
+    Vector n{-1, -2, -3};
     const Material* material;
+    Ray original;
 };
 
 std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
     std::optional<ShotResult> res = std::nullopt;
-    
+
     for (auto t : scene.GetObjects()) {
         auto inter = GetIntersection(ray, t.polygon);
         if (!inter) {
@@ -97,7 +99,11 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
         if (DotProduct(ns, def) < 0.0) {
             ns *= -1.0;
         }
-        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=ns, .material=t.material};
+        res = ShotResult{.distance = x,
+                         .point = inter->GetPosition(),
+                         .n = ns,
+                         .material = t.material,
+                         .original = ray};
     }
 
     for (auto s : scene.GetSphereObjects()) {
@@ -109,7 +115,11 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
         if (res && res->distance < x) {
             continue;
         }
-        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=inter->GetNormal(), .material=s.material};
+        res = ShotResult{.distance = x,
+                         .point = inter->GetPosition(),
+                         .n = inter->GetNormal(),
+                         .material = s.material,
+                         .original = ray};
     }
     return res;
 }
@@ -122,19 +132,29 @@ Vector ColorInPoint(const Scene& scene, ShotResult shr) {
     Vector diffuse{}, specular{};
 
     for (auto light : scene.GetLights()) {
-        Vector v = {p, light.position};
         Vector ray_origin = p + n * kEps;
         Vector ray_direction = light.position - ray_origin;
         double light_distance = Distance(ray_origin, light.position);
-        
         auto shr2 = Shot(scene, Ray{ray_origin, ray_direction});
-        if (shr2 && Compare(shr2->distance,  light_distance ) < 0) {
+        if (shr2 && Compare(shr2->distance, light_distance) < 0) {
             continue;
         }
-        v.Normalize();
-        double dot = DotProduct(v, n);
-        if (dot > 0) {
-            diffuse += light.intensity * dot;
+
+        {
+            Vector v = {p, light.position};
+            v.Normalize();
+            double dot = std::max(0.0, DotProduct(v, n));
+            diffuse += light.intensity * dot;  
+        }
+
+        {
+            Vector vr = shr.original.GetDirection();
+            vr.Normalize();
+            Vector vlr = Reflect(Vector{light.position, p}, n);
+            vlr.Normalize();
+            double dot = std::max(0.0, DotProduct(vr, vlr));
+            dot = pow(dot, m->specular_exponent);
+            specular += light.intensity * dot;
         }
     }
     Vector res = m->diffuse_color * diffuse;
@@ -145,7 +165,6 @@ Vector ColorInPoint(const Scene& scene, ShotResult shr) {
 
     return res;
 }
-
 
 Image RenderFull(const Scene& scene, const PreparedCameraOptions& camera_options) {
     FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
@@ -177,7 +196,6 @@ Image RenderDepth(const Scene& scene, const PreparedCameraOptions& camera_option
                 dmax = std::max(dmax, shr->distance);
             }
             // bench("distance");
-            
         }
     }
     assert(Compare(dmax) > 0);
@@ -203,7 +221,8 @@ Image RenderNormal(const Scene& scene, const PreparedCameraOptions& camera_optio
             auto shr = Shot(scene, camera_options.EmitRay(i, j));
             if (shr) {
                 Vector n = shr->n;
-                res.SetPixel(i, j, FloatingRGB{n[0] / 2.0 + 0.5, n[1] / 2.0 + 0.5, n[2] / 2.0 + 0.5});
+                res.SetPixel(i, j,
+                             FloatingRGB{n[0] / 2.0 + 0.5, n[1] / 2.0 + 0.5, n[2] / 2.0 + 0.5});
             } else {
                 res.SetPixel(i, j, FloatingRGB{0, 0, 0});
             }
@@ -211,7 +230,6 @@ Image RenderNormal(const Scene& scene, const PreparedCameraOptions& camera_optio
     }
     return res.ToImage();
 }
-
 
 Image Render(const std::filesystem::path& path, const CameraOptions& camera_options,
              const RenderOptions& render_options) {
