@@ -5,9 +5,11 @@
 #include "image.h"
 #include "floating_image.h"
 #include "scene.h"
+#include "vector.h"
 
 #include <filesystem>
 #include <filesystem>
+#include <optional>
 // #include <chrono>
 
 // std::chrono::steady_clock::time_point start, last;
@@ -56,70 +58,22 @@ private:
     double hszy_, hszx_;
 };
 
-double Distance(const Scene& scene, Ray ray) {
-    double d = -1;
-    for (auto t : scene.GetObjects()) {
-        auto inter = GetIntersection(ray, t.polygon);
-        if (!inter) {
-            continue;
-        }
-        double x = (*inter).GetDistance();
-        if (d == -1 || d > x) {
-            d = x;
-        }
-    }
-    for (auto s : scene.GetSphereObjects()) {
-        auto inter = GetIntersection(ray, s.sphere);
-        if (!inter) {
-            continue;
-        }
-        double x = (*inter).GetDistance();
-        if (d == -1 || d > x) {
-            d = x;
-        }
-    }
-    return d;
-}
+struct ShotResult {
+    double distance{-1};
+    Vector point{-1, -2, -3};
+    Vector n{-1,-2,-3};
+};
 
-Image RenderDepth(const Scene& scene, const PreparedCameraOptions& camera_options) {
-    FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
-    double dmax = 0;
-    for (int i = 0; i < camera_options.options.screen_height; ++i) {
-        // bench("finish row");
-        for (int j = 0; j < camera_options.options.screen_width; ++j) {
-            auto ray = camera_options.EmitRay(i, j);
-            // bench("ray emmited");
-            double d = Distance(scene, ray);
-            // bench("distance");
-            dmax = std::max(dmax, d);
-        }
-    }
-    assert(Compare(dmax) > 0);
-    for (int i = 0; i < camera_options.options.screen_height; ++i) {
-        for (int j = 0; j < camera_options.options.screen_width; ++j) {
-            double d = Distance(scene, camera_options.EmitRay(i, j));
-            if (d == -1) {
-                d = dmax;
-            }
-            d /= dmax;
-            res.SetPixel(i, j, FloatingRGB{d, d, d});
-        }
-    }
-
-    return res.ToImage();
-}
-
-Vector Normal(const Scene& scene, Ray ray) {
-    double d = -1;
-    Vector n{-1, -1, -1};
-
+std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
+    std::optional<ShotResult> res = std::nullopt;
+    
     for (auto t : scene.GetObjects()) {
         auto inter = GetIntersection(ray, t.polygon);
         if (!inter) {
             continue;
         }
         double x = inter->GetDistance();
-        if (d > 0 && d < x) {
+        if (res && res->distance < x) {
             continue;
         }
 
@@ -139,8 +93,7 @@ Vector Normal(const Scene& scene, Ray ray) {
         if (DotProduct(ns, def) < 0.0) {
             ns *= -1.0;
         }
-        d = x;
-        n = ns;
+        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=ns};
     }
 
     for (auto s : scene.GetSphereObjects()) {
@@ -149,19 +102,55 @@ Vector Normal(const Scene& scene, Ray ray) {
             continue;
         }
         double x = (*inter).GetDistance();
-        if (d == -1 || d > x) {
-            d = x;
-            n = (*inter).GetNormal();
+        if (res && res->distance < x) {
+            continue;
+        }
+        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=inter->GetNormal()};
+    }
+    return res;
+}
+
+Image RenderDepth(const Scene& scene, const PreparedCameraOptions& camera_options) {
+    FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
+    double dmax = 0;
+    for (int i = 0; i < camera_options.options.screen_height; ++i) {
+        // bench("finish row");
+        for (int j = 0; j < camera_options.options.screen_width; ++j) {
+            auto ray = camera_options.EmitRay(i, j);
+            // bench("ray emmited");
+            auto shr = Shot(scene, ray);
+            if (shr) {
+                dmax = std::max(dmax, shr->distance);
+            }
+            // bench("distance");
+            
         }
     }
-    return n;
+    assert(Compare(dmax) > 0);
+    for (int i = 0; i < camera_options.options.screen_height; ++i) {
+        for (int j = 0; j < camera_options.options.screen_width; ++j) {
+            auto shr = Shot(scene, camera_options.EmitRay(i, j));
+            double d = dmax;
+            if (shr) {
+                d = shr->distance;
+            }
+            d /= dmax;
+            res.SetPixel(i, j, FloatingRGB{d, d, d});
+        }
+    }
+
+    return res.ToImage();
 }
 
 Image RenderNormal(const Scene& scene, const PreparedCameraOptions& camera_options) {
     FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
     for (int i = 0; i < camera_options.options.screen_height; ++i) {
         for (int j = 0; j < camera_options.options.screen_width; ++j) {
-            Vector n = Normal(scene, camera_options.EmitRay(i, j));
+            auto shr = Shot(scene, camera_options.EmitRay(i, j));
+            Vector n = Vector(-1, -1, -1);
+            if (shr) {
+                n = shr->n;
+            }
             res.SetPixel(i, j, FloatingRGB{n[0] / 2.0 + 0.5, n[1] / 2.0 + 0.5, n[2] / 2.0 + 0.5});
         }
     }
