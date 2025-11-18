@@ -73,6 +73,12 @@ public:
         a *= x;
         return a;
     }
+    friend Vector operator*(Vector a, Vector b) {
+        for (int i = 0; i < 3; ++i) {
+            a[i] *= b[i];
+        }
+        return a;
+    }
 
 private:
     std::array<double, 3> data_;

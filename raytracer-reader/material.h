@@ -6,11 +6,11 @@
 
 struct Material {
     std::string name;
-    Vector ambient_color;
-    Vector diffuse_color;
-    Vector specular_color;
-    Vector intensity;
-    double specular_exponent;
-    double refraction_index{1};
-    Vector albedo{1, 0, 0};
+    Vector ambient_color; // Ka
+    Vector diffuse_color; // Kd
+    Vector specular_color; // Ks
+    Vector intensity; // Ke
+    double specular_exponent; // Ns
+    double refraction_index{1}; // Ni
+    Vector albedo{1, 0, 0}; // al
 };

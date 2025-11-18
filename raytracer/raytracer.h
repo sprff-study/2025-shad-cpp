@@ -117,8 +117,10 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
 Vector ColorInPoint(const Scene& scene, ShotResult shr) {
     auto p = shr.point;
     auto n = shr.n;
+    auto m = shr.material;
 
-    Vector res{};
+    Vector diffuse{}, specular{};
+
     for (auto light : scene.GetLights()) {
         Vector v = {p, light.position};
         Vector ray_origin = p + n * kEps;
@@ -132,9 +134,15 @@ Vector ColorInPoint(const Scene& scene, ShotResult shr) {
         v.Normalize();
         double dot = DotProduct(v, n);
         if (dot > 0) {
-            res += light.intensity * dot;
+            diffuse += light.intensity * dot;
         }
     }
+    Vector res = m->diffuse_color * diffuse;
+    res += m->specular_color * specular;
+    res *= m->albedo[0];
+    res += m->ambient_color;
+    res += m->intensity;
+
     return res;
 }
 
