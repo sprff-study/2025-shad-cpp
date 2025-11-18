@@ -157,10 +157,13 @@ Vector TraceRay(const Scene& scene, Ray ray, int depth) {
         }
 
         {
+            Vector from_light = Vector{light.position, p};
+            from_light.Normalize();
+            Vector vlr = Reflect(from_light, n);
+            vlr.Normalize();
+            vlr *= -1.0;
             Vector vr = shr.original.GetDirection();
             vr.Normalize();
-            Vector vlr = Reflect(Vector{light.position, p}, n);
-            vlr.Normalize();
             double dot = std::max(0.0, DotProduct(vr, vlr));
             dot = pow(dot, m->specular_exponent);
             specular += light.intensity * dot;
