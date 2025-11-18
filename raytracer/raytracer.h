@@ -1,5 +1,6 @@
 #pragma once
 
+#include "material.h"
 #include "options/camera_options.h"
 #include "options/render_options.h"
 #include "image.h"
@@ -62,6 +63,7 @@ struct ShotResult {
     double distance{-1};
     Vector point{-1, -2, -3};
     Vector n{-1,-2,-3};
+    const Material* material;
 };
 
 std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
@@ -93,7 +95,7 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
         if (DotProduct(ns, def) < 0.0) {
             ns *= -1.0;
         }
-        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=ns};
+        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=ns, .material=t.material};
     }
 
     for (auto s : scene.GetSphereObjects()) {
@@ -105,11 +107,49 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
         if (res && res->distance < x) {
             continue;
         }
-        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=inter->GetNormal()};
+        res = ShotResult{.distance=x, .point=inter->GetPosition(), .n=inter->GetNormal(), .material=s.material};
     }
     return res;
 }
 
+Vector ColorInPoint(const Scene& scene, ShotResult shr) {
+    auto p = shr.point;
+    auto n = shr.n;
+    auto d = shr.distance;
+
+    Vector res{};
+    for (auto light : scene.GetLights()) {
+        if (Compare(Distance(p, light.position), d) >= 0) { // may be just > 0
+            continue;
+        } 
+        Vector v = {p, light.position};
+        v.Normalize();
+        double dot = DotProduct(v, n);
+        if (dot > 0) {
+            res += light.intensity * dot;
+        }
+    }
+    return res;
+}
+
+
+Image RenderFull(const Scene& scene, const PreparedCameraOptions& camera_options) {
+    FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
+    for (int i = 0; i < camera_options.options.screen_height; ++i) {
+        for (int j = 0; j < camera_options.options.screen_width; ++j) {
+            auto shr = Shot(scene, camera_options.EmitRay(i, j));
+            Vector color = Vector(0, 0, 0);
+            if (shr) {
+                color = ColorInPoint(scene, *shr);
+            }
+            res.SetPixel(i, j, FloatingRGB{color[0], color[1], color[2]});
+        }
+    }
+    res.ToneMapping();
+    res.GammaCorrection();
+
+    return res.ToImage();
+}
 Image RenderDepth(const Scene& scene, const PreparedCameraOptions& camera_options) {
     FloatingImage res(camera_options.options.screen_width, camera_options.options.screen_height);
     double dmax = 0;
@@ -147,15 +187,17 @@ Image RenderNormal(const Scene& scene, const PreparedCameraOptions& camera_optio
     for (int i = 0; i < camera_options.options.screen_height; ++i) {
         for (int j = 0; j < camera_options.options.screen_width; ++j) {
             auto shr = Shot(scene, camera_options.EmitRay(i, j));
-            Vector n = Vector(-1, -1, -1);
             if (shr) {
-                n = shr->n;
+                Vector n = shr->n;
+                res.SetPixel(i, j, FloatingRGB{n[0] / 2.0 + 0.5, n[1] / 2.0 + 0.5, n[2] / 2.0 + 0.5});
+            } else {
+                res.SetPixel(i, j, FloatingRGB{0, 0, 0});
             }
-            res.SetPixel(i, j, FloatingRGB{n[0] / 2.0 + 0.5, n[1] / 2.0 + 0.5, n[2] / 2.0 + 0.5});
         }
     }
     return res.ToImage();
 }
+
 
 Image Render(const std::filesystem::path& path, const CameraOptions& camera_options,
              const RenderOptions& render_options) {
@@ -169,6 +211,9 @@ Image Render(const std::filesystem::path& path, const CameraOptions& camera_opti
     }
     if (render_options.mode == RenderMode::kNormal) {
         return RenderNormal(scene, prep);
+    }
+    if (render_options.mode == RenderMode::kFull) {
+        return RenderFull(scene, prep);
     }
 
     return Image{camera_options.screen_width, camera_options.screen_height};
