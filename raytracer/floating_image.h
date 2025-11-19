@@ -68,8 +68,26 @@ public:
             for (int j = 0; j < width_; ++j) {
                 FloatingRGB fx = data_[i * width_ + j];
                 int r = 255 * fx.r;
+                if (r > 255) {
+                    r = 255;
+                }
+                if (r < 0) {
+                    r = 0;
+                }
                 int g = 255 * fx.g;
+                if (g > 255) {
+                    g = 255;
+                }
+                if (g < 0) {
+                    g = 0;
+                }
                 int b = 255 * fx.b;
+                if (b > 255) {
+                    b = 255;
+                }
+                if (b < 0) {
+                    b = 0;
+                }
                 assert(0 <= r && r <= 255);
                 assert(0 <= g && g <= 255);
                 assert(0 <= b && b <= 255);

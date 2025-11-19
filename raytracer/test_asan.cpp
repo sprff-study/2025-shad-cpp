@@ -40,23 +40,23 @@ void CheckImage(std::string_view obj_filename, std::string_view result_filename,
 //         "../raytracer/debug/triangle_debug.png");
 // }
 
-// TEST_CASE("Triangle2") {
-//     std::cout << "Triangle2" << std::endl;
-//     CameraOptions camera_opts{.screen_width = 640,
-//                               .screen_height = 480,
-//                               .look_from = {0., -2., 0.},
-//                               .look_to = {0., 0., 0.}};
-//     CheckImage("triangle/scene.obj", "triangle/black.png", camera_opts, {1},
-//         "../raytracer/debug/triangle2_debug.png");    
-// }
-
-TEST_CASE("Box with spheres") {
-    std::cout << "Box with spheres" << std::endl;
+TEST_CASE("Triangle2") {
+    std::cout << "Triangle2" << std::endl;
     CameraOptions camera_opts{.screen_width = 640,
                               .screen_height = 480,
-                              .fov = std::numbers::pi / 3,
-                              .look_from = {0., .7, 1.75},
-                              .look_to = {0., .7, 0.}};
-    CheckImage("box/cube.obj", "box/cube.png", camera_opts, {4},
-        "../raytracer/debug/cube_debug.png");
+                              .look_from = {0., -2., 0.},
+                              .look_to = {0., 0., 0.}};
+    CheckImage("triangle/scene.obj", "triangle/black.png", camera_opts, {1},
+        "../raytracer/debug/triangle2_debug.png");    
 }
+
+// TEST_CASE("Box with spheres") {
+//     std::cout << "Box with spheres" << std::endl;
+//     CameraOptions camera_opts{.screen_width = 640,
+//                               .screen_height = 480,
+//                               .fov = std::numbers::pi / 3,
+//                               .look_from = {0., .7, 1.75},
+//                               .look_to = {0., .7, 0.}};
+//     CheckImage("box/cube.obj", "box/cube.png", camera_opts, {4},
+//         "../raytracer/debug/cube_debug.png");
+// }
