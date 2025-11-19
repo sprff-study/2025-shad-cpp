@@ -11,6 +11,7 @@
 #include "scene.h"
 #include "vector.h"
 
+#include <cassert>
 #include <filesystem>
 #include <filesystem>
 #include <optional>
@@ -185,6 +186,25 @@ Vector TraceRay(const Scene& scene, Ray ray, int depth) {
         res += reflected * m->albedo[1];
     }
 
+    // refraction 
+    if (Compare(m->albedo[2]) > 0) {
+        auto ray_direction_opt = Refract(shr.original.GetDirection(), n, 1 / m->refraction_index);
+        if (!ray_direction_opt) {
+            assert(false && "can't refract");
+            return Vector();
+        }
+
+        auto ray_origin = p;
+        auto cosd = DotProduct(shr.original.GetDirection(), n);
+        if (Compare(cosd) > 0) {
+            ray_origin += n * kEps;
+        } else {
+            ray_origin -= n * kEps;
+        }
+        Ray refract_ray = Ray{ray_origin, *ray_direction_opt};
+        auto refracted = TraceRay(scene, refract_ray, depth);
+        res += refracted * m->albedo[2];
+    }
 
     return res;
 }
