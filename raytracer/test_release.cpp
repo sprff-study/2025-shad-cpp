@@ -34,7 +34,7 @@
 //         "../raytracer/debug/distorted_box.png");
 // }
 
-// Too long 
+// // Too long 
 // TEST_CASE("Deer") {
 //     std::cout << "Deer" << std::endl;
 //     CameraOptions camera_opts{.screen_width = 500,

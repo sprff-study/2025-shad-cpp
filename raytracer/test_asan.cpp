@@ -40,8 +40,6 @@ void CheckImage(std::string_view obj_filename, std::string_view result_filename,
 //         "../raytracer/debug/triangle_debug.png");
 // }
 
-// Runtime
-
 // TEST_CASE("Triangle2") {
 //     std::cout << "Triangle2" << std::endl;
 //     CameraOptions camera_opts{.screen_width = 640,

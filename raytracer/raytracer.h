@@ -2,6 +2,7 @@
 
 #include "geometry.h"
 #include "material.h"
+#include "object.h"
 #include "options/camera_options.h"
 #include "options/render_options.h"
 #include "image.h"
@@ -69,6 +70,7 @@ struct ShotResult {
     Vector n{-1, -2, -3};
     const Material* material;
     Ray original;
+    std::optional<SphereObject> sphere;
 };
 
 std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
@@ -100,11 +102,14 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
         if (DotProduct(ns, def) < 0.0) {
             ns *= -1.0;
         }
-        res = ShotResult{.distance = x,
-                         .point = inter->GetPosition(),
-                         .n = ns,
-                         .material = t.material,
-                         .original = ray};
+        res = ShotResult{
+            .distance = x,
+            .point = inter->GetPosition(),
+            .n = ns,
+            .material = t.material,
+            .original = ray,
+            .sphere = std::nullopt,
+        };
     }
 
     for (auto s : scene.GetSphereObjects()) {
@@ -116,16 +121,36 @@ std::optional<ShotResult> Shot(const Scene& scene, Ray ray) {
         if (res && res->distance < x) {
             continue;
         }
-        res = ShotResult{.distance = x,
-                         .point = inter->GetPosition(),
-                         .n = inter->GetNormal(),
-                         .material = s.material,
-                         .original = ray};
+        res = ShotResult{
+            .distance = x,
+            .point = inter->GetPosition(),
+            .n = inter->GetNormal(),
+            .material = s.material,
+            .original = ray,
+            .sphere = s,
+        };
     }
     return res;
 }
 
 const Vector kNoObject = Vector();
+
+Ray RefractRay(ShotResult shr, double eta) {
+    auto ray_direction_opt = Refract(shr.original.GetDirection(), shr.n, eta);
+    if (!ray_direction_opt) {
+        assert(false && "can't refract");
+    }
+
+    auto ray_origin = shr.point;
+    auto cosd = DotProduct(shr.original.GetDirection(), shr.n);
+    if (Compare(cosd) > 0) {
+        ray_origin += shr.n * kEps;
+    } else {
+        ray_origin -= shr.n * kEps;
+    }
+    Ray refract_ray = Ray{ray_origin, *ray_direction_opt};
+    return refract_ray;
+}
 
 Vector TraceRay(const Scene& scene, Ray ray, int depth) {
     auto oshr = Shot(scene, ray);
@@ -133,7 +158,6 @@ Vector TraceRay(const Scene& scene, Ray ray, int depth) {
         return kNoObject;
     }
     auto shr = *oshr;
-
 
     auto p = shr.point;
     auto n = shr.n;
@@ -154,7 +178,7 @@ Vector TraceRay(const Scene& scene, Ray ray, int depth) {
             Vector v = {p, light.position};
             v.Normalize();
             double dot = std::max(0.0, DotProduct(v, n));
-            diffuse += light.intensity * dot;  
+            diffuse += light.intensity * dot;
         }
 
         {
@@ -176,7 +200,6 @@ Vector TraceRay(const Scene& scene, Ray ray, int depth) {
     res += m->ambient_color;
     res += m->intensity;
 
-
     // reflections
     if (depth > 0 && Compare(m->albedo[1]) > 0) {
         Vector reflected_direction = Reflect(shr.original.GetDirection(), n);
@@ -186,22 +209,16 @@ Vector TraceRay(const Scene& scene, Ray ray, int depth) {
         res += reflected * m->albedo[1];
     }
 
-    // refraction 
+    // refraction
     if (Compare(m->albedo[2]) > 0) {
-        auto ray_direction_opt = Refract(shr.original.GetDirection(), n, 1 / m->refraction_index);
-        if (!ray_direction_opt) {
-            assert(false && "can't refract");
-            return Vector();
+        auto refract_ray = RefractRay(shr, 1 / m->refraction_index);
+        if (shr.sphere) {
+            auto shr_internal = Shot(scene, refract_ray);
+            if (!shr_internal) {
+                assert(false && "should shot in the same sphere");
+            }
+            refract_ray = RefractRay(*shr_internal, m->refraction_index);
         }
-
-        auto ray_origin = p;
-        auto cosd = DotProduct(shr.original.GetDirection(), n);
-        if (Compare(cosd) > 0) {
-            ray_origin += n * kEps;
-        } else {
-            ray_origin -= n * kEps;
-        }
-        Ray refract_ray = Ray{ray_origin, *ray_direction_opt};
         auto refracted = TraceRay(scene, refract_ray, depth);
         res += refracted * m->albedo[2];
     }
