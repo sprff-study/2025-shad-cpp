@@ -44,7 +44,7 @@ private:
 };
 
 std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::path& path) {
-    // auto&  logger = 
+    // auto&  logger =
     std::unordered_map<std::string, Material> res;
     std::ifstream file(path.c_str(), std::ios::in);
     std::string line;
@@ -99,7 +99,7 @@ std::unordered_map<std::string, Material> ReadMaterials(const std::filesystem::p
 }
 
 Scene ReadScene(const std::filesystem::path& path) {
-    // auto&  logger = 
+    // auto&  logger =
     std::vector<Object> objects;
     std::vector<SphereObject> spheres;
     std::vector<Light> lights;

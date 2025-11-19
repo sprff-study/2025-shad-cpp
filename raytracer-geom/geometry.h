@@ -121,10 +121,6 @@ std::optional<Vector> Refract(const Vector& ray, const Vector& normal, double et
     double cosi_abs = -cosi;
     double k = 1.0 - eta_ratio * eta_ratio * (1.0 - cosi_abs * cosi_abs);
     if (k < 0.0) {
-        
-        
-        
-        
 
         return std::nullopt;
     }
