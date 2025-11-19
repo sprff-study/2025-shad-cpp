@@ -67,21 +67,21 @@ public:
         for (int i = 0; i < height_; ++i) {
             for (int j = 0; j < width_; ++j) {
                 FloatingRGB fx = data_[i * width_ + j];
-                int r = 255 * fx.r;
+                int r = 255 * ((std::isnan(fx.r) || std::isinf(fx.r)) ? 0.0 : fx.r);
                 if (r > 255) {
                     r = 255;
                 }
                 if (r < 0) {
                     r = 0;
                 }
-                int g = 255 * fx.g;
+                int g = 255 * ((std::isnan(fx.g) || std::isinf(fx.g)) ? 0.0 : fx.g);
                 if (g > 255) {
                     g = 255;
                 }
                 if (g < 0) {
                     g = 0;
                 }
-                int b = 255 * fx.b;
+                int b = 255 * ((std::isnan(fx.b) || std::isinf(fx.b)) ? 0.0 : fx.b);
                 if (b > 255) {
                     b = 255;
                 }
