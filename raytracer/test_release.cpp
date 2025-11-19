@@ -1,7 +1,7 @@
 #include "test_asan.cpp"
 
 // TEST_CASE("Classic box") {
-//     std::cout << "Classic box" << std::endl;
+//     
 //     CameraOptions camera_opts{.screen_width = 500,
 //                               .screen_height = 500,
 //                               .look_from = {-.5, 1.5, .98},
@@ -15,7 +15,7 @@
 // }
 
 // TEST_CASE("Mirrors") {
-//     std::cout << "Mirrors" << std::endl;
+//     
 //     CameraOptions camera_opts{.screen_width = 800,
 //                               .screen_height = 600,
 //                               .look_from = {2., 1.5, -.1},
@@ -25,7 +25,7 @@
 // }
 
 // TEST_CASE("Distorted box") {
-//     std::cout << "Distorted box" << std::endl;
+//     
 //     CameraOptions camera_opts{.screen_width = 500,
 //                               .screen_height = 500,
 //                               .look_from = {-0.5, 1.5, 1.98},
@@ -36,7 +36,7 @@
 
 // // Too long
 // TEST_CASE("Deer") {
-//     std::cout << "Deer" << std::endl;
+//     
 //     CameraOptions camera_opts{.screen_width = 500,
 //                               .screen_height = 500,
 //                               .look_from = {100., 200., 150.},

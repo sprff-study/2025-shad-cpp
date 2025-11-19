@@ -21,11 +21,11 @@
 // std::chrono::steady_clock::time_point start, last;
 // void bench(const std::string& label = "") {
 //     auto now = std::chrono::steady_clock::now();
-//     std::cout << label << ": ";
-//     std::cout << "start ("
+//     
+//     
 //               << std::chrono::duration_cast<std::chrono::nanoseconds>(now - start).count()
 //               << "[ns]) ";
-//     std::cout << "last ("
+//     
 //               << std::chrono::duration_cast<std::chrono::nanoseconds>(now - last).count()
 //               << "[ns])\n";
 //     last = now;

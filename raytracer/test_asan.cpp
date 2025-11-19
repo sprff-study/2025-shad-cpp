@@ -24,14 +24,14 @@ void CheckImage(std::string_view obj_filename, std::string_view result_filename,
 }
 
 // TEST_CASE("Shading parts") {
-//     std::cout << "Shading parts" << std::endl;
+//     
 //     CameraOptions camera_opts{640, 480};
 //     CheckImage("shading_parts/scene.obj", "shading_parts/scene.png", camera_opts, {1},
 //     "../raytracer/debug/shading_parts_debug.png");
 // }
 
 // TEST_CASE("Triangle") {
-//     std::cout << "Triangle" << std::endl;
+//     
 //     CameraOptions camera_opts{.screen_width = 640,
 //                               .screen_height = 480,
 //                               .look_from = {0., 2., 0.},
@@ -41,7 +41,7 @@ void CheckImage(std::string_view obj_filename, std::string_view result_filename,
 // }
 
 TEST_CASE("Triangle2") {
-    std::cout << "Triangle2" << std::endl;
+    
     CameraOptions camera_opts{.screen_width = 640,
                               .screen_height = 480,
                               .look_from = {0., -2., 0.},
@@ -51,7 +51,7 @@ TEST_CASE("Triangle2") {
 }
 
 // TEST_CASE("Box with spheres") {
-//     std::cout << "Box with spheres" << std::endl;
+//     
 //     CameraOptions camera_opts{.screen_width = 640,
 //                               .screen_height = 480,
 //                               .fov = std::numbers::pi / 3,
