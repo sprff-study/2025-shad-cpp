@@ -47,7 +47,7 @@ TEST_CASE("Triangle2") {
                               .look_from = {0., -2., 0.},
                               .look_to = {0., 0., 0.}};
     CheckImage("triangle/scene.obj", "triangle/black.png", camera_opts, {1},
-        "../raytracer/debug/triangle2_debug.png");    
+               "../raytracer/debug/triangle2_debug.png");
 }
 
 // TEST_CASE("Box with spheres") {
