@@ -163,7 +163,7 @@ Vector TraceRay(const Scene& scene, Ray ray, int depth) {
     auto n = shr.n;
     auto m = shr.material;
 
-    // just colors
+    // simple colors
     Vector diffuse{}, specular{};
     for (auto light : scene.GetLights()) {
         Vector ray_origin = p + n * kEps;
