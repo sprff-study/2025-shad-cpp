@@ -8,12 +8,17 @@
 
 namespace {
 
+std::string GetTokenTypeName(const Token& token) {
+    return std::visit([](const auto& value) { return std::string(typeid(value).name()); }, token);
+}
+
 template <class T>
 void RequireEquals(const Token& token, const T& value) {
     if (const auto* p = std::get_if<T>(&token)) {
         REQUIRE(*p == value);
     } else {
-        FAIL("Wrong token type: " << typeid(T).name());
+        FAIL("Wrong token type: expected " << typeid(T).name() << " got "
+                                           << GetTokenTypeName(token));
     }
 }
 
