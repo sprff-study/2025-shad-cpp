@@ -8,15 +8,15 @@
 struct SymbolToken {
     std::string name;
 
-    bool operator==(const SymbolToken& other) const=default;
+    bool operator==(const SymbolToken& other) const = default;
 };
 
 struct QuoteToken {
-    bool operator==(const QuoteToken&) const=default;
+    bool operator==(const QuoteToken&) const = default;
 };
 
 struct DotToken {
-    bool operator==(const DotToken&) const=default;
+    bool operator==(const DotToken&) const = default;
 };
 
 enum class BracketToken { OPEN, CLOSE };
@@ -24,7 +24,7 @@ enum class BracketToken { OPEN, CLOSE };
 struct ConstantToken {
     int value;
 
-    bool operator==(const ConstantToken& other) const=default;
+    bool operator==(const ConstantToken& other) const = default;
 };
 
 using Token = std::variant<ConstantToken, BracketToken, SymbolToken, QuoteToken, DotToken>;
@@ -41,7 +41,7 @@ public:
     }
 
     void Next() {
-        while (reader_->peek() == ' ' || reader_->peek() == '\n' ) {
+        while (reader_->peek() == ' ' || reader_->peek() == '\n') {
             reader_->get();
         }
 
@@ -125,7 +125,7 @@ private:
             res *= 10;
             res += reader_->get() - '0';
         }
-        if (negative ) {
+        if (negative) {
             res = -res;
         }
         return ConstantToken{res};
