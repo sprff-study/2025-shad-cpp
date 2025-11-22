@@ -4,6 +4,7 @@
 #include <variant>
 #include <istream>
 #include <string>
+#include "error.h"
 
 struct SymbolToken {
     std::string name;
@@ -41,6 +42,9 @@ public:
     }
 
     void Next() {
+        if (IsEnd()) {
+            throw RuntimeError{"Next after end"};
+        }
         while (reader_->peek() == ' ' || reader_->peek() == '\n') {
             reader_->get();
         }
@@ -97,6 +101,8 @@ public:
             }
             current_ = ReadDigit(true);
             return;
+        } else {
+            throw SyntaxError{"unexpected character"};
         }
     }
 
